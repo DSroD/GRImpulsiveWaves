@@ -32,7 +32,6 @@ class StaticGeodesicPlotter:
         if z_range < lim:
             self.ax.set_zlim([-lim, lim])
 
-
     def plot(self, trajectory, line="--", color="#{:06x}".format(random.randint(0, 0xFFFFFF)).upper(), xc=1, yc=2, zc=3):
         xs = np.array([x[xc] for x in trajectory])
         ys = np.array([x[yc] for x in trajectory])
@@ -50,5 +49,5 @@ class StaticGeodesicPlotter:
     def show(self):
         plt.show()
 
-    def save(self, name="geodesic.png", dpi=200):
+    def save(self, name="geodesics.png", dpi=300):
         plt.savefig(name, dpi=dpi)

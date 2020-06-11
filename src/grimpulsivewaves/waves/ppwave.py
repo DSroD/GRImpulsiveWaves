@@ -12,29 +12,37 @@ class Solution:
         :return: List of trajectories
         """
 
-        if np.dot(v0, v0) != 1:
-            raise ValueError("v0 should be normed to 1")
-
-        if x0.to_null_tetrad()[0] != 0:
-            raise ValueError("x0 has to lie on wavefront")
+        #TODO: This has to be done using metric, line element should be added to coords or wave lol
+        #if np.dot(v0.x, v0.x) != 1:
+            #raise ValueError("v0 should be normed to 1")
 
         if x0.type != v0.type:
             raise ValueError("x0 and v0 has to be in same coordinate representation")
+
+        if x0.type == "null_tetrad" and x0[0] != 0:
+            raise ValueError("x0 has to lie on wavefront")
+
+        elif x0.to_nulltetrad()[0] != 0:
+            raise ValueError("x0 has to lie on wavefront")
+
 
         zminus = np.append(v0.x, x0.x)
         xp, vp = self._refract(x0, v0)
         zplus = np.append(vp.x, xp.x)
 
-        solminus = integrate_geodesic(zminus, (min(range), 0))
-        solplus = integrate_geodesic(zplus, (0, max(range)))
+        solminus = integrate_geodesic(x0, -v0, (min(range), 0))
+        solplus = integrate_geodesic(xp, vp, (0, max(range)))
 
-        trajectories = []
+
+        #TODO: Return afinne parameter as list aswell (as propper time of each particle)
 
         if splitted:
-            trajectories.append([x[dim:] for x in solminus.y.T])
-            trajectories.append([x[dim:] for x in solplus.y.T])
+            trajectories = []
+            trajectories.append([x0.coordinate_type(x[dim:]) for x in solminus.y.T[:-1]])
+            trajectories.append([x0.coordinate_type(x[dim:]) for x in solplus.y.T])
+            return trajectories
         else:
-            trajectories.append([x[dim:] for x in np.append(solminus.y.T, solplus.y.T)])
+            return [x0.coordinate_type(x[dim:]) for x in np.append(solminus.y.T[:-1], solplus.y.T)]
 
 
 class AichelburgSexlSolution(Solution):
@@ -73,7 +81,7 @@ class AichelburgSexlSolution(Solution):
         if _x.type == "null_tetrad":
             _nx = np.array([_x[0],
                             _x[1] + self._h(_x),
-                            _x[2], x[3]])
+                            _x[2], _x[3]])
             _dhz = self._hz(_x)
             _nu = np.array([_u[0],
                             _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + _dhz * np.conj(_dhz) * _u[0],
@@ -82,10 +90,13 @@ class AichelburgSexlSolution(Solution):
         else:
             raise Exception("Something went wrong while converting to internal coordinate representation")
 
+        _x.x = _nx
+        _u.x = _nu
+        #TODO: Do this more pythonic
         if keepCoordinates and _x.type != x.type:
             return x.coordinate_type.convert(_x), u.coordinate_type.convert(_u)
         else:
-            return _x, _u
+            return _nx, _nu
 
     def _h(self, x):
         if x.dif:

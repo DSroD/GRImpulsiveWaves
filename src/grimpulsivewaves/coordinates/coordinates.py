@@ -101,13 +101,13 @@ class NullTetrad(Coordinates):
     def to_cartesian(self):
         if self.dif:
             return Cartesian(np.array([1. / np.sqrt(2) * np.real(self.x[0] + self.x[1]),
-                                       1. / np.sqrt(2) * np.real(self.x[0] - self.x[1]),
+                                       -1. / np.sqrt(2) * np.real(self.x[0] - self.x[1]),
                                        1. / np.sqrt(2) * np.real(self.x[2] + self.x[3]),
                                        1. / np.sqrt(2) * np.imag(self.x[3] - self.x[2])]),
                              True)
         else:
             return Cartesian(np.array([1. / np.sqrt(2) * np.real(self.x[0] + self.x[1]),
-                                       1. / np.sqrt(2) * np.real(self.x[0] - self.x[1]),
+                                       -1. / np.sqrt(2) * np.real(self.x[0] - self.x[1]),
                                        1. / np.sqrt(2) * np.real(self.x[2] + self.x[3]),
                                        1. / np.sqrt(2) * np.imag(self.x[2] - self.x[3])]))
 
