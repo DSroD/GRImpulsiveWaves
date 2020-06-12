@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits import mplot3d
 
+#TODO: Create class for interactive dynamic plotting
 
 class StaticGeodesicPlotter:
     def __init__(self, ax=None, use3d=False, figsize=(8, 8), labels2d=["x", "y"], zlabel = "z"):
@@ -47,7 +48,7 @@ class StaticGeodesicPlotter:
 
 
     def show(self):
-        plt.show()
+        self.fig.show()
 
     def save(self, name="geodesics.png", dpi=300):
-        plt.savefig(name, dpi=dpi)
+        self.fig.savefig(name, dpi=dpi)

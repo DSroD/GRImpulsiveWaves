@@ -145,7 +145,6 @@ class HottaTanakaSolution(Solution):
         self.l = l
         self.mu = mu
 
-
     def _refract(self, x, u, keepCoordinates=True):
         """
         Internal method for geodesic plotting
@@ -165,7 +164,7 @@ class FrolovFursaevGyraton(Solution):
         :param mu: Mu parameter of wave
         :param chi: Twisting parameter of spacetime u > 0
         """
-        if chi==0:
+        if chi == 0:
             raise Exception("For xi=0 please use AichelburgSexlSolution class")
         self.mu = mu
         self.chi = chi

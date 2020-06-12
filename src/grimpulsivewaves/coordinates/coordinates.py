@@ -185,6 +185,7 @@ class NullCartesian(Coordinates):
 class NullTetradFrolovFursaev(Coordinates):
     def __init__(self, x, chi, dif=False):
         """
+
         Gyratonic Null Tetrad Coordinates for Frolov-Fursaev gyraton spacetime
         :param x:
         :param dif:

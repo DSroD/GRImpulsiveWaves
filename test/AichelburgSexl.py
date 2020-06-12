@@ -12,7 +12,7 @@ wave = AichelburgSexlSolution(1) #Generate spacetime with wave
 
 
 #INITIAL POSITION AND 4-VELOCITY
-initCoords = Cartesian(np.array([1, -1, 1.2, 0.2]))
+initCoords = Cartesian(np.array([0, 0, 1.2, 0.2]))
 initCoords2 = Cartesian(np.array([0, 0, 0, 1]))
 initVels = Cartesian(1. / np.sqrt((1 ** 2 + 0.1 ** 2)) * np.array([1, 0, 0.1, 0]), True)
 
