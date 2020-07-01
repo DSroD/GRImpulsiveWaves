@@ -8,7 +8,7 @@ from src.grimpulsivewaves.plotting import StaticGeodesicPlotter
 
 from src.grimpulsivewaves.integrators.geodesic_integrator import integrate_geodesic
 
-wave = AichelburgSexlSolution(1) #Generate spacetime with wave
+wave = AichelburgSexlSolution(0.1) #Generate spacetime with wave
 
 
 #INITIAL POSITION AND 4-VELOCITY

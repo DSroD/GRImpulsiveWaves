@@ -40,7 +40,7 @@ class Cartesian(Coordinates):
         self.type = "cartesian"
 
     @staticmethod
-    def christoffel(x):
+    def christoffel(x, params):
         return np.zeros((4, 4, 4))
 
     def to_nulltetrad(self):
@@ -82,7 +82,7 @@ class GyratonicCartesian(Coordinates):
         super().__init__(x, dif)
         self.type = "gyratonic_cartesian"
     @staticmethod
-    def christoffel(x):
+    def christoffel(x, params):
         if(x[0] - x[1] <= 0):
             return np.zeros((4, 4, 4))
         else:
@@ -131,7 +131,7 @@ class NullTetrad(Coordinates):
         return NullTetrad
 
     @staticmethod
-    def christoffel(x):
+    def christoffel(x, params):
         return np.zeros((4, 4, 4))
 
 class GyratonicNullTetrad(Coordinates):
@@ -179,39 +179,38 @@ class NullCartesian(Coordinates):
         return NullCartesian
 
     @staticmethod
-    def christoffel(x):
+    def christoffel(x, params):
         return np.zeros((4, 4, 4))
 
-class NullTetradFrolovFursaev(Coordinates):
-    def __init__(self, x, chi, dif=False):
+class NullTetradAichelburgSexlGyraton(Coordinates):
+    def __init__(self, x, dif=False):
         """
-
-        Gyratonic Null Tetrad Coordinates for Frolov-Fursaev gyraton spacetime
-        :param x:
-        :param dif:
+        Gyratonic null tetrad coordinates for spacetime with gyratonic Aichelburg Sexl impulsive wave
+        :param x: Numpy array of numbers
+        :param dif: True if this is velocities, default false if coordinates
         """
         super().__init__(x, dif)
-        self.type = "frolov_fusarev_tetrad"
-        self.chi = chi
+        self.type = "aichelburg_sexl_gyraton_null_tetrad"
 
     @staticmethod
-    def christoffel(x, chi):
-        if (x[3] - x[0] <= 0):
-            return np.zeros((4, 4, 4))
+    def christoffel(x, params):
+        if (x[0] <= 0):
+            return np.zeros((4, 4, 4), dtype=np.complex64)
         else:
-            ch = np.zeros((4, 4, 4))
-            ch[2, 1, 2] = -1.0j * chi / (2 * x[2] * x[2])
-            ch[2, 2, 1] = -1.0j * chi / (2 * x[2] * x[2])
-            ch[2, 1, 3] = -1.0j * chi / (2 * x[3] * x[3])
-            ch[2, 3, 1] = -1.0j * chi / (2 * x[3] * x[3])
+            ch = np.zeros((4, 4, 4), dtype=np.complex64)
+            ch[2, 1, 2] = -1j * (params[0]) / (2 * x[2] * x[2])
+            ch[2, 2, 1] = -1j * (params[0]) / (2 * x[2] * x[2])
+            ch[2, 1, 3] = -1j * (params[0]) / (2 * x[3] * x[3])
+            ch[2, 3, 1] = -1j * (params[0]) / (2 * x[3] * x[3])
+            return ch
 
     @staticmethod
     def convert(x):
-        return x.to_nulltetradfrolovfursaev()
+        return x.to_aichelburg_sexl_gyraton_null_tetrad()
 
     @property
     def coordinate_type(self):
-        return NullTetradFrolovFursaev
+        return NullTetradAichelburgSexlGyraton
 
 
 class Spherical(Coordinates):
@@ -225,7 +224,7 @@ class Spherical(Coordinates):
         self.type = "spherical"
 
     @staticmethod
-    def christoffel(x):
+    def christoffel(x, params):
         cf = np.zeros((4, 4, 4))
         cf[1, 2, 2] = - x[1]  # r theta theta
         cf[1, 3, 3] = - x[1] * np.sin(x[2])**2  # r phi phi
