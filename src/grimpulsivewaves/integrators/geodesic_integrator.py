@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 
-def integrate_geodesic(x0, v0, range, christoffelParams, dim=4,):
+def integrate_geodesic(x0, v0, range, christoffelParams, max_step, dim=4):
     z0 = np.append(v0.x, x0.x)
     def geodeseq(t, z):
         if(np.iscomplexobj(v0.x)):
@@ -13,4 +13,4 @@ def integrate_geodesic(x0, v0, range, christoffelParams, dim=4,):
         #TODO: Add corrections/checks to 4-velocity norm?
         return a
 
-    return solve_ivp(geodeseq, range, z0, vectorized=True)
+    return solve_ivp(geodeseq, range, z0, vectorized=True, max_step=max_step)

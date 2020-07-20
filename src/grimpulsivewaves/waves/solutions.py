@@ -4,7 +4,7 @@ from ..integrators import integrate_geodesic
 
 class RefractionSolution:
 
-    def generate_geodesic(self, x0, v0, range, dim=4, splitted=True, christoffelParams=None, coordinateParams=None):
+    def generate_geodesic(self, x0, v0, range, dim=4, splitted=True, christoffelParams=None, coordinateParams=None, max_step=np.inf):
         """
 
         :param x0: Initial particle 4-position
@@ -29,8 +29,8 @@ class RefractionSolution:
 
         xp, vp = self._refract(x0, v0)
 
-        solminus = integrate_geodesic(x0, -v0, (min(range), 0), christoffelParams)
-        solplus = integrate_geodesic(xp, vp, (0, max(range)), christoffelParams)
+        solminus = integrate_geodesic(x0, -v0, (min(range), 0), christoffelParams, max_step)
+        solplus = integrate_geodesic(xp, vp, (0, max(range)), christoffelParams, max_step)
 
 
         #TODO: Return afinne parameter as list aswell (as propper time of each particle if massive)

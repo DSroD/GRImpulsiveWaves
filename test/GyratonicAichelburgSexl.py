@@ -6,17 +6,17 @@ from src.grimpulsivewaves.plotting import StaticGeodesicPlotter
 import random
 
 
-N = 10 #Number of geodesics
-chi = np.pi/16 #Chi parameter
+N = 12 #Number of geodesics
+chi = -0.2 #Chi parameter
 
-initpos = [NullTetradAichelburgSexlGyraton(np.array([0, 0, 5*-np.sin(phi) + 5j * np.cos(phi), -5*np.sin(phi) - 5j * np.cos(phi)]))
+initpos = [NullTetradAichelburgSexlGyraton(np.array([0, 0, np.sin(phi) + 1j * np.cos(phi), np.sin(phi) - 1j * np.cos(phi)]))
            for phi in np.linspace(0, 2*np.pi * (N-1.) / N, num=N)]
 u0 = np.array([1+0j, 0+0j, 0+0j, 0+0j]) #Make it null geodesics
 initvels = [NullTetradAichelburgSexlGyraton(u0 * np.linalg.norm(u0), True) for u in range(N)]
 
 wave = AichelburgSexlGyratonSolution(0.2, chi) #Generate spacetime with wave
 
-plotter = StaticGeodesicPlotter(use3d=True, labels2d=["x", "v"], zlabel="t") #Init 3D plotter
+plotter = StaticGeodesicPlotter(use3d=True, labels2d=["x", "z"], zlabel="t") #Init 3D plotter
 
 plotter3d2 = StaticGeodesicPlotter(use3d=True, labels2d=["x", "y"], zlabel="t") #Init 3D plotter
 
@@ -24,7 +24,7 @@ plotter2d = StaticGeodesicPlotter(use3d=False, labels2d=["$\mathcal{U}$", "$\mat
 
 #For each init pos generate geodesic (splitted)
 for x0, v0 in zip(initpos, initvels):
-    trajm, trajp = wave.generate_geodesic(x0, v0, (-0.5, 0.8), christoffelParams=[chi])
+    trajm, trajp = wave.generate_geodesic(x0, v0, (-4., 3), christoffelParams=[chi], max_step=0.02)
     color = "#{:06x}".format(random.randint(0, 0xFFFFFF)).upper()
 
     # TODO: Create ToCartesian function because using so many lambdas here is just bad practice
