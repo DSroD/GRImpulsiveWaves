@@ -2,7 +2,18 @@ import numpy as np
 
 from ..integrators import integrate_geodesic
 
-class RefractionSolution:
+class Solution:
+
+    def generate_geodesic(self, x0, v0, range, dim=4, christoffelParams=None, coordinateParams=None, max_step=np.inf):
+        if x0.type != v0.type:
+            raise ValueError("x0 and v0 has to be in same coordinate representation")
+
+        sol = integrate_geodesic(x0, v0, min(range), max(range), christoffelParams, max_step)
+
+        return [x0.coordinate_type(x[dim:]) for x in sol.y.T]
+
+
+class RefractionSolution(Solution):
 
     def generate_geodesic(self, x0, v0, range, dim=4, splitted=True, christoffelParams=None, coordinateParams=None, max_step=np.inf):
         """

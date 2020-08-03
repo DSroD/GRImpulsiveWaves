@@ -14,3 +14,19 @@ def integrate_geodesic(x0, v0, range, christoffelParams, max_step, dim=4):
         return a
 
     return solve_ivp(geodeseq, range, z0, vectorized=True, max_step=max_step)
+
+
+def FLI(x0, v0, range, christoffelParams, max_step, dx, dim=4):
+    """
+    Fast Lyapunov Indicator for chaoooooos!
+    :param x0:
+    :param v0:
+    :param range:
+    :param christoffelParams:
+    :param max_step:
+    :param dx:
+    :param dim:
+    :return:
+    """
+
+    pass
