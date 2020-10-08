@@ -1,6 +1,7 @@
 import numpy as np
 
-from ..integrators import integrate_geodesic
+from grimpulsivewaves.integrators import integrate_geodesic
+
 
 class Solution:
 
@@ -142,7 +143,6 @@ class AichelburgSexlSolution(RefractionSolution):
             return -self.mu * 2. * x[3] / (x[2]**2 + x[3]**2)
 
 
-
 class HottaTanakaSolution(RefractionSolution):
     #TODO: this :)
     def __init__(self, l, mu):
@@ -172,6 +172,7 @@ class HottaTanakaSolution(RefractionSolution):
 
     def _hz(self, x):
         raise NotImplementedError()
+
 
 class AichelburgSexlGyratonSolution(RefractionSolution):
     #TODO: finish this class I guess
@@ -226,7 +227,6 @@ class AichelburgSexlGyratonSolution(RefractionSolution):
         else:
             return _x.coordinate_type(_nx), _x.coordinate_type(_nu, True)
 
-
     def _h(self, x):
         if x.dif:
             raise Exception("Coordinate argument x cannot be differential")
@@ -245,7 +245,6 @@ class AichelburgSexlGyratonSolution(RefractionSolution):
         else:
             raise Exception("Error in inner conversion to Aichelburg Sexl Gyratonic coordinate system")
 
-    
 
 class FrolovFursaevGyratonLambda(RefractionSolution):
     def __init__(self, mu, chi, l):

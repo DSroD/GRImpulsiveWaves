@@ -14,20 +14,20 @@ class Coordinates:
     def __neg__(self):
         return self.coordinate_type(-self.x, self.dif)
 
-    #TODO: Are these methods necessary? General coordinate system might not have conversion to cartesian etc
-    def to_cartesian(self):
-        raise NotImplementedError()
-
-    def to_nulltetrad(self):
-        raise NotImplementedError()
-
-    def to_nullcartesian(self):
-        raise NotImplementedError()
-
     @property
     def coordinate_type(self):
         return Coordinates
 
+class DeSitterCartesian(Coordinates):
+    def __init__(self, x, dif=False):
+
+        super().__init__(x, dif)
+        self.type = "deSitterCartesian"
+
+    @staticmethod
+    def christoffel(x, params):
+        return np.zeros((4, 4, 4))
+        
 
 class Cartesian(Coordinates):
     def __init__(self, x, dif=False):

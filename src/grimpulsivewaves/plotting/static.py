@@ -2,12 +2,17 @@ import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits import mplot3d
 
-#TODO: Create class for interactive dynamic plotting
+
+#This is deprecated and no longer will be supported
+
+
+
+
+
 
 class StaticGeodesicPlotter:
-    def __init__(self, ax=None, use3d=False, figsize=(8, 8), labels2d=["x", "y"], zlabel = "z"):
+    def __init__(self, ax=None, use3d=False, figsize=(8, 8), labels2d=["x", "y"], zlabel = "z", labelsize=16):
         self.ax = ax
         self.use3d = use3d
         if not self.ax:
@@ -18,10 +23,13 @@ class StaticGeodesicPlotter:
                 self.ax.set_zlabel(zlabel)
             self.ax.set_xlabel(labels2d[0])
             self.ax.set_ylabel(labels2d[1])
-
-    def _euclid_dist(self, x, y, z=0):
-        return np.sqrt(x*x + y*y + z*z)
-
+            self.ax.set_xticks([])
+            self.ax.set_yticks([])
+            self.ax.xaxis.label.set_size(labelsize)
+            self.ax.yaxis.label.set_size(labelsize)
+            if use3d:
+                self.ax.set_zticks([])
+                self.ax.zaxis.label.set_size(labelsize)
 
     def _set_scaling(self, x_range, y_range, z_range, lim):
         if x_range < lim and y_range < lim and z_range < lim:

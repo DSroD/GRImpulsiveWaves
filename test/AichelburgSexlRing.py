@@ -1,17 +1,16 @@
 import numpy as np
-from src.grimpulsivewaves.coordinates.coordinates import Cartesian
-from src.grimpulsivewaves.waves import AichelburgSexlSolution
-from src.grimpulsivewaves.plotting import StaticGeodesicPlotter
-from src.grimpulsivewaves.integrators.geodesic_integrator import integrate_geodesic
+from grimpulsivewaves.coordinates.coordinates import Cartesian
+from grimpulsivewaves.waves import AichelburgSexlSolution
+from grimpulsivewaves.plotting import StaticGeodesicPlotter
 
 import random
 
 
-N = 10 #Number of geodesics
+N = 100 #Number of geodesics
 
 initpos = [Cartesian(np.array([0, 0, -np.sin(phi), np.cos(phi)])) for phi in np.linspace(0, 2*np.pi * (N-1.) / N, num=N)]
-u0 = np.array([1, -1, 0, 0]) #Make it null geodesics
-initvels = [Cartesian(u0 * np.linalg.norm(u0), True) for u in range(N)] #Can be generalized to different initial 4-vels
+u0 = np.array([-1, 1, 0, 0]) #Make it null geodesics
+initvels = [Cartesian(u0 / np.linalg.norm(u0), True) for u in range(N)] #Can be generalized to different initial 4-vels
 
 wave = AichelburgSexlSolution(0.6) #Generate spacetime with wave
 
