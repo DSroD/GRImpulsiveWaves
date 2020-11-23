@@ -1,6 +1,6 @@
 import numpy as np
 
-class Coordinates:
+class CoordinatePoint:
     def __init__(self, x, dif):
         self.x = x
         self.dif = dif
@@ -16,20 +16,10 @@ class Coordinates:
 
     @property
     def coordinate_type(self):
-        return Coordinates
+        return CoordinatePoint
 
-class DeSitterCartesian(Coordinates):
-    def __init__(self, x, dif=False):
 
-        super().__init__(x, dif)
-        self.type = "deSitterCartesian"
-
-    @staticmethod
-    def christoffel(x, params):
-        return np.zeros((4, 4, 4))
-        
-
-class Cartesian(Coordinates):
+class Cartesian(CoordinatePoint):
     def __init__(self, x, dif=False):
         """
         Cartesian coordinates on Minkowski metric ds^2 = -dt^2 + dz^2 + dx^2 + dy^2
@@ -70,7 +60,8 @@ class Cartesian(Coordinates):
     def coordinate_type(self):
         return Cartesian
 
-class GyratonicCartesian(Coordinates):
+
+class GyratonicCartesian(CoordinatePoint):
     #TODO: Finish this class
     def __init__(self, x, dif=False):
         """
@@ -88,7 +79,8 @@ class GyratonicCartesian(Coordinates):
         else:
             raise NotImplementedError()
 
-class NullTetrad(Coordinates):
+
+class NullTetrad(CoordinatePoint):
     def __init__(self, x, dif=False):
         """
 
@@ -134,7 +126,8 @@ class NullTetrad(Coordinates):
     def christoffel(x, params):
         return np.zeros((4, 4, 4))
 
-class GyratonicNullTetrad(Coordinates):
+
+class GyratonicNullTetrad(CoordinatePoint):
     #TODO: Finish this class
     def __init__(self, x, dif=False):
         """
@@ -145,7 +138,8 @@ class GyratonicNullTetrad(Coordinates):
         super().__init__(x, dif)
         self.type = "general_gyratonic_null_tetrad"
 
-class NullCartesian(Coordinates):
+
+class NullCartesian(CoordinatePoint):
     def __init__(self, x, dif=False):
         """
 
@@ -182,7 +176,8 @@ class NullCartesian(Coordinates):
     def christoffel(x, params):
         return np.zeros((4, 4, 4))
 
-class NullTetradAichelburgSexlGyraton(Coordinates):
+
+class NullTetradConstantHeavisideGyraton(CoordinatePoint):
     def __init__(self, x, dif=False):
         """
         Gyratonic null tetrad coordinates for spacetime with gyratonic Aichelburg Sexl impulsive wave
@@ -200,8 +195,8 @@ class NullTetradAichelburgSexlGyraton(Coordinates):
             ch = np.zeros((4, 4, 4), dtype=np.complex64)
             ch[2, 1, 2] = -1j * (params[0]) / (2 * x[2] * x[2])
             ch[2, 2, 1] = -1j * (params[0]) / (2 * x[2] * x[2])
-            ch[2, 1, 3] = -1j * (params[0]) / (2 * x[3] * x[3])
-            ch[2, 3, 1] = -1j * (params[0]) / (2 * x[3] * x[3])
+            ch[3, 1, 3] = 1j * (params[0]) / (2 * x[3] * x[3])
+            ch[3, 3, 1] = 1j * (params[0]) / (2 * x[3] * x[3])
             return ch
 
     @staticmethod
@@ -210,10 +205,10 @@ class NullTetradAichelburgSexlGyraton(Coordinates):
 
     @property
     def coordinate_type(self):
-        return NullTetradAichelburgSexlGyraton
+        return NullTetradConstantHeavisideGyraton
 
 
-class Spherical(Coordinates):
+class Spherical(CoordinatePoint):
     def __init__(self, x, dif=False):
         """
         -dt^2 + dr^2 +r^2 d\theta^2 + r^2 sin^2 \theta d\phi^2
@@ -262,7 +257,7 @@ class Spherical(Coordinates):
         return Spherical
 
 
-class Polar(Coordinates):
+class Polar(CoordinatePoint):
     def __init__(self, x, dif=False):
         """
 
@@ -271,7 +266,8 @@ class Polar(Coordinates):
         """
         super().__init__(x, dif)
 
-class NullPolar(Coordinates):
+
+class NullPolar(CoordinatePoint):
     def __init__(self, x, dif=False):
         """
 
@@ -299,8 +295,60 @@ class NullPolar(Coordinates):
         return NullPolar
 
 
-class FiveDimensional(Coordinates):
+class FiveDimensional(CoordinatePoint):
     def __init__(self, x, l, dif=False):
         super().__init__(x, dif)
         self.lmb = l
         self.a = np.sqrt(3/np.abs(l))
+
+
+class DeSitterNullTetrad(CoordinatePoint):
+    def __init__(self, x, dif=False):
+        """
+        Complex null coordinates coordinates with non-zero arbitrary lambda
+        Christoffel symbol parameters are [\Lambda]
+        :param x: Numpy array of numbers
+        :param dif: True if this is velocities, default false if coordinates
+        """
+        super().__init__(x, dif)
+        self.type = "desitternull"
+
+    @property
+    def coordinate_type(self):
+        return DeSitterNullTetrad
+
+    @staticmethod
+    def christoffel(x, params):
+        cf = np.zeros((4, 4, 4), dtype=np.complex64)
+        cf[0, 0, 0] = 2 * x[1] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[2, 0, 0] = - x[3] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[3, 0, 0] = - x[2] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[1, 1, 1] = 2 * x[0] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[2, 1, 1] = - x[3] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[3, 1, 1] = - x[2] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[0, 0, 2] = - x[3] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[0, 2, 0] = cf[0, 0, 2]
+        cf[3, 0, 2] = x[0] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[3, 2, 0] = cf[3, 0, 2]
+        cf[1, 1, 2] = - x[3] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[1, 2, 1] = cf[1, 1, 2]
+        cf[3, 1, 2] = x[1] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[3, 2, 1] = cf[3, 1, 2]
+        cf[0, 2, 2] = x[1] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[1, 2, 2] = x[0] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[2, 2, 2] = - 2 * x[3] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[0, 0, 3] = - x[2] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[0, 3, 0] = cf[0, 0, 3]
+        cf[2, 0, 3] = x[0] * params[0] / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[2, 3, 0] = cf[2, 0, 3]
+        cf[1, 1, 3] = (- x[2] * params[0]) / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[1, 3, 1] = cf[1, 1, 3]
+        cf[2, 1, 3] = (x[1] * params[0]) / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[2, 3, 1] = cf[2, 1, 3]
+        cf[0, 3, 3] = (x[1] * params[0]) / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[1, 3, 3] = (x[0] * params[0]) / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        cf[3, 3, 3] = (- 2 * x[2] * params[0]) / (6. - (x[0] * x[1] + x[2] * x[3]) * params[0])
+        return cf
+
+
+#TODO: Add gyratonic coordinates (probably not for general J, will see)
