@@ -1,19 +1,32 @@
 import numpy as np
+import plotly
 import plotly.graph_objects as go
 from plotly.io import write_image
 import random
 
 class PlotlyDynamicPlotter:
-    def __init__(self, labels=["x", "y", "z"], title="", aspectratio=None, xrange=None, yrange=None, zrange=None, showSpikes=True, spikeColor="#000000"):
+    def __init__(self, labels=["x", "y", "z"], title="", aspectratio=None, xrange=None, yrange=None, zrange=None, showSpikes=True, spikeColor="#000000", bgcolor="#fff"):
         self.labels = labels
+
+        axis = dict(showline=True,
+                    linewidth=4,
+                    title=dict(font=dict(size=20)),
+                    showticklabels=False,
+                    backgroundcolor=bgcolor)
+
         layout = go.Layout(scene= dict(
-            xaxis_title = labels[0],
-            yaxis_title = labels[1],
-            zaxis_title = labels[2]))
+            xaxis_title=labels[0],
+            yaxis_title=labels[1],
+            zaxis_title=labels[2],
+            xaxis=axis,
+            yaxis=axis,
+            zaxis=axis)
+            )
+
         self.fig = go.Figure(layout=layout)
         if xrange:
             self.fig.update_layout(scene=dict(
-                xaxis = dict(range=xrange)
+                xaxis=dict(range=xrange)
             ))
         if yrange:
             self.fig.update_layout(scene=dict(
@@ -41,8 +54,7 @@ class PlotlyDynamicPlotter:
                 yaxis=dict(showspikes=False),
                 zaxis=dict(showspikes=False)
             ))
-
-        self.fig.update_layout(title=title)
+        self.fig.update_layout(title=dict(text=title, font=dict(size=35), x=0.5, xanchor="center", y=0.8, yanchor="top"))
         if aspectratio:
             self.fig.update_layout(scene_aspectmode='manual', scene_aspectratio=dict(x=aspectratio[0], y=aspectratio[1], z=aspectratio[2]))
 
@@ -65,7 +77,7 @@ class PlotlyDynamicPlotter:
 
 
 
-    def plotHyperboloid(self, l=1, vsize=(-1,1), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", drawImpulse=False, showlegend=False):
+    def plotHyperboloid(self, l=1, vsize=(-2,2), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", drawImpulse=False, showlegend=False):
         """
         Generate hyperboloid
         :param l: Cosmological constant
@@ -76,7 +88,7 @@ class PlotlyDynamicPlotter:
         eps = np.sign(l)
         a = np.sqrt(3/np.abs(l))
         u = np.linspace(0, 2 * np.pi, 60)
-        v = np.linspace(vsize[0], vsize[1], 60) #TODO: This should not be hard-coded
+        v = np.linspace(vsize[0], vsize[1], 60) #TODO: resolution should not be hard-coded
 
         u, v = np.meshgrid(u, v)
 
@@ -111,13 +123,68 @@ class PlotlyDynamicPlotter:
             x = 10 * [-a]
             x2 = 10 * [a]
 
-            _tempfig.add_scatter3d(x=x, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=8), name="U = infinity", hoverinfo='skip', showlegend=showlegend)
-            _tempfig.add_scatter3d(x=x2, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=8), name="U = 0", hoverinfo='skip', showlegend=showlegend)
+            _tempfig.add_scatter3d(x=x, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=4), name="U = infinity", hoverinfo='skip', showlegend=showlegend, opacity=0.4)
+            _tempfig.add_scatter3d(x=x2, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=8), name="U = 0", hoverinfo='skip', showlegend=showlegend, opacity=0.8)
 
         self.fig.add_traces(_tempfig.data)
 
-    def plotCutAndPasteHyperboloid(self, l, vsize=(-1, 1), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")"):
-        pass
+    def plotCutAndPasteHyperboloid(self, H, l, vsize=(-2, 2), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", drawImpulse=False, showlegend=False):
+        from scipy.spatial import Delaunay
+
+        a = np.sqrt(3 / np.abs(l))
+        eps = np.sign(l)
+        uo = np.linspace(0, 2 * np.pi, 700)
+        v = np.linspace(vsize[0], vsize[1], 500)  # TODO: resolution should not be hard-coded
+
+        uo, v = np.meshgrid(uo, v)
+
+        u = uo.flatten()
+        v = v.flatten()
+        #TODO: OPRAVIT, ZKUST https://stackoverflow.com/questions/25060103/determine-sum-of-numpy-array-while-excluding-certain-values
+        if (eps > 0):
+            x = a * np.cosh(v / a) * np.cos(u)
+            z = a * np.sinh(v / a)
+            y = a * np.cosh(v / a) * np.sin(u)
+
+        else:
+            x = a * np.cosh(v/a) * np.cos(u)
+            z = a * np.cosh(v / a) * np.sin(u)
+            y = a * np.sinh(v / a)
+
+        xp = np.array([a if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+        xm = np.array([a if c - b <= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+        yp = np.array([b - 1. / np.sqrt(2) * H if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+        ym = np.array([b if c - b <= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+        zp = np.array([c + 1. / np.sqrt(2) * H if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+        zm = np.array([c if c - b <= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+
+        _tempfig = go.Figure(data=[
+            go.Surface(x=xp, y=yp, z=zp, colorscale=[color, color]),
+            go.Surface(x=xm, y=ym, z=zm, colorscale=[color, color])
+        ])
+        _tempfig['data'][0].update(name="Hyperboloid +")
+        _tempfig['data'][1].update(name="Hyperboloid -")
+        _tempfig.update_traces(showscale=False, opacity=opacity, hoverinfo='skip', showlegend=showlegend)
+        if drawImpulse:
+            v = np.linspace(vsize[0], vsize[1], 10)
+            z = v[:-1]
+            y = v[:-1]
+            x = 10 * [-a]
+            x2 = 10 * [a]
+
+            _tempfig.add_scatter3d(x=x, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=4),
+                                   name="U- = infinity", hoverinfo='skip', showlegend=showlegend , opacity=0.4)
+            _tempfig.add_scatter3d(x=x2, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=8),
+                                   name="U- = 0", hoverinfo='skip', showlegend=showlegend, opacity=0.8)
+            _tempfig.add_scatter3d(x=x , y=y - 1. / np.sqrt(2) * H, z=z + 1. / np.sqrt(2) * H, mode="lines", line=go.scatter3d.Line(color="black", width=4),
+                                   name="U+ = infinity", hoverinfo='skip', showlegend=showlegend, opacity=0.4)
+            _tempfig.add_scatter3d(x=x2, y=y - 1. / np.sqrt(2) * H, z=z + 1. / np.sqrt(2) * H, mode="lines", line=go.scatter3d.Line(color="black", width=8),
+                                   name="U+ = 0", hoverinfo='skip', showlegend=showlegend, opacity=0.8)
+
+        self.fig.add_traces(_tempfig.data)
+
+
+
 
     def show(self):
         self.fig.show()
@@ -127,10 +194,22 @@ class PlotlyDynamicPlotter:
             include_mathjax = 'cdn'
         self.fig.write_html(path, include_plotlyjs=include_plotlyjs, include_mathjax=include_mathjax)
 
-    def export_pdf(self, path):
+
+    #TODO: Do something with default camera
+    def export_pdf(self, path, eye=(1.25, 1.25, 1.25), up=(.0, .0, 1.0), orbit=False, title=True):
         """
         This requires Kaleido, install using "pip install -U Kaleido".
         :param path: Path of resulting file
+        :param eye: Eye of camera
         :return:
         """
-        write_image(self.fig, path, format="pdf", scale=10, engine="kaleido", width=1024, height=1024)
+        camera = dict(
+            eye=dict(x=eye[0], y=eye[1], z=eye[2]),
+            up=dict(x=up[0], y=up[1], z=up[2])
+        )
+        if orbit:
+            self.fig.update_layout(scene = dict(dragmode='orbit'))
+
+        self.fig.update_layout(scene_camera=camera, showlegend=False)
+        write_image(self.fig, path, format="pdf", scale=3, engine="kaleido", width=1024, height=1024)
+        self.fig.update_layout(scene_camera=dict(eye=dict(x=1.25, y=1.25, z=1.25), up=dict(x=.0,y=.0,z=1.0)), showlegend=True, scene=dict(dragmode='turntable'))

@@ -16,33 +16,50 @@ class Solution:
 
 class RefractionSolution(Solution):
 
-    def generate_geodesic(self, x0, v0, range, dim=4, splitted=True, christoffelParams=None, coordinateParams=None, max_step=np.inf, identifyPoints=False, rtol=1e-2, atol=1e-4):
+    def generate_geodesic(self, x0, v0, range, dim=4, splitted=True, christoffelParams=None, christoffelParamsPlus=None, coordinateParams=None, max_step=np.inf, identifyPoints=False, rtol=1e-2, atol=1e-4, verbose=False):
         """
 
         :param x0: Initial particle 4-position
         :param v0: Initial particle 4-velocity
         :return: List of trajectories (each trajectory is list of respective coordinates)
         """
-
-        # TODO: This has to be done using metric, line element should be added to coords or wave lol (also null geodesics luls at me)
-        #if np.dot(v0.x, v0.x) != 1:
-            #raise ValueError("v0 should be normed to 1")
+        if christoffelParamsPlus is None:
+            christoffelParamsPlus = christoffelParams
 
         if x0.type != v0.type:
             raise ValueError("x0 and v0 has to be in same coordinate representation")
 
-        # TODO: Following checks are not general enough (conversion to classical null tetrad might not be always possible)
+        #def metric(u):
+        #    return -2 * u[0] * u[1] + 2 * u[2] * u[3]
 
-        #if x0.type == "null_tetrad" and x0[0] != 0:
-            #raise ValueError("x0 has to lie on wavefront")
-
-        #elif x0.to_nulltetrad()[0] != 0:
-            #raise ValueError("x0 has to lie on wavefront")
+        #def metricp(u, x):
+        #    return -2 * u[0] * u[1] + 2 * u[2] * u[3] + 2 * christoffelParams[0] / (2 * 1j * x[2]) * u[0] * u[2] + 2 * np.conj(christoffelParams[0] / (2 * 1j * x[2])) * u[0] * u[3]
 
         xp, vp = self._refract(x0, v0)
+        if verbose:
+            print("At:")
+            print("U: {} -> {}".format(x0.x[0], xp.x[0]))
+            print("V: {} -> {}".format(x0.x[1], xp.x[1]))
+            print("x+iy: {} -> {}".format(x0.x[2], xp.x[2]))
+            print("x-iy: {} -> {}".format(x0.x[3], xp.x[3]))
+            print("")
+            print("dU: {} -> {}".format(v0.x[0], vp.x[0]))
+            print("dV: {} -> {}".format(v0.x[1], vp.x[1]))
+            print("d(x+iy): {} -> {}".format(v0.x[2], vp.x[2]))
+            print("d(x-iy): {} -> {}".format(v0.x[3], vp.x[3]))
+            print("")
+            #print("ds(u, u):")
+            #print("Before: {}".format(metric(v0)))
+            #if (christoffelParams is not None):
+            #    print("After(gyra metric): {}".format(metricp(vp, xp)))
+            #else:
+            #    print("After: {}".format(metric(vp)))
+            print("----------------------------------------------")
+
 
         solminus = integrate_geodesic(x0, -v0, (0, -min(range)), christoffelParams, max_step, rtol=rtol, atol=atol)
-        solplus = integrate_geodesic(xp, vp, (0, max(range)), christoffelParams, max_step, rtol=rtol,  atol=atol)
+
+        solplus = integrate_geodesic(xp, vp, (0, max(range)), christoffelParamsPlus, max_step, rtol=rtol,  atol=atol)
 
 
         #TODO: Return afinne parameter as list aswell (as propper time of each particle if massive)
@@ -147,7 +164,6 @@ class AichelburgSexlSolution(RefractionSolution):
 
 
 class LambdaGeneralSolution(RefractionSolution):
-    #TODO: this :)
     def __init__(self, l, h, h_z):
         """
         Hotta - Tanaka solution is generalized Aichelburg-Sexl solution for non-zero cosmological
@@ -193,7 +209,6 @@ class LambdaGeneralSolution(RefractionSolution):
         else:
             raise Exception("Something went wrong while converting to internal coordinate representation")
 
-        #TODO: Do this more pythonic
         if keepCoordinates and _x.type != x.type:
             _x.x = _nx
             _u.x = _nu
@@ -203,7 +218,6 @@ class LambdaGeneralSolution(RefractionSolution):
 
 
 class HottaTanakaSolution(RefractionSolution):
-    #TODO: this :)
     def __init__(self, l, mu):
         """
         Hotta - Tanaka solution is generalized Aichelburg-Sexl solution for non-zero cosmological
@@ -283,6 +297,24 @@ class AichelburgSexlGyratonSolution(RefractionSolution):
         self.mu = mu
         self.chi = chi
 
+    def _h(self, x):
+        if x.dif:
+            raise Exception("Coordinate argument x cannot be differential")
+        if x.type == "null_tetrad_constant_heaviside_gyraton":
+            # Branch cut [-inf , 0]
+            return -self.mu * np.log(2 * x[2] * x[3])
+        else:
+            raise Exception("Error in inner conversion to Null Tetrad Constant Heaviside Gyraton coordinate system")
+
+    def _hz(self, x):
+        if x.dif:
+            raise Exception("Coordinate argument x cannot be differential")
+        if x.type == "null_tetrad_constant_heaviside_gyraton":
+            # Branch cut [-inf , 0]
+            return -self.mu * 1. / x[2]
+        else:
+            raise Exception("Error in inner conversion to Null Tetrad Constant Heaviside Gyraton coordinate system")
+
     def _refract(self, x, u, keepCoordinates=True):
         """
         Internal method for geodesic plotting
@@ -297,14 +329,11 @@ class AichelburgSexlGyratonSolution(RefractionSolution):
             raise Exception("Coordinate argument x cannot be differential")
         if not u.dif:
             raise Exception("4-velocity argument u has to be differential")
-        defined = ["aichelburg_sexl_gyraton_null_tetrad"]
+        defined = ["null_tetrad_constant_heaviside_gyraton"]
+        _x = x
+        _u = u
         if x.type not in defined:
-            #TODO: Check if conversion exist first
-            _x = x.to_aichelburg_sexl_gyraton_null_tetrad()
-            _u = u.to_aichelburg_sexl_gyraton_null_tetrad()
-        else:
-            _x = x
-            _u = u
+            raise Exception("Wrong coordinates for this wave solution")
         _nx = np.array([_x[0],
                         _x[1] + self._h(_x),
                         _x[2], _x[3]])
@@ -312,7 +341,7 @@ class AichelburgSexlGyratonSolution(RefractionSolution):
         _nu = np.array([_u[0],
                         _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + (_dhz * np.conj(_dhz) - self.chi**2 / (4. * _x[2] * _x[3])) * _u[0],
                         _u[2] + (np.conj(_dhz) - 1j * self.chi / (2. * _x[3])) * _u[0],
-                        _u[3] + (_dhz + 1j * self.chi / (2 * _x[2])) * _u[0]])
+                        np.conj(_u[2] + (np.conj(_dhz) - 1j * self.chi / (2. * _x[3])) * _u[0])])
 
         # TODO: Do this more pythonic
         if keepCoordinates and _x.type != x.type:
@@ -322,30 +351,57 @@ class AichelburgSexlGyratonSolution(RefractionSolution):
         else:
             return _x.coordinate_type(_nx), _x.coordinate_type(_nu, True)
 
-    def _h(self, x):
+class GeneralLambdaGyratonSolution(RefractionSolution):
+    def __init__(self, l, chi, h, h_z):
+        """
+        Hotta - Tanaka solution is generalized Aichelburg-Sexl solution for non-zero cosmological
+        constant.
+        :param l: Cosmological constant
+        :param mu: Mu parameter of wave
+        """
+        if l==0:
+            raise Exception("For l=0 please use something else")
+        self.l = l
+        self.chi = chi
+        self._h = h
+        self._hz = h_z
+
+    def _refract(self, x, u, keepCoordinates=True):
+        """
+        Internal method for geodesic plotting
+        :param x: Position in internal coordinates
+        :param u: Velocity in internal coordinates
+        :param keepCoordinates: If false returns x and u in internal coordinates (for example when there is no inverse)
+        :return: Position and velocity after refraction
+        """
+        # Several coordinate representations of refraction equations are presented
         if x.dif:
             raise Exception("Coordinate argument x cannot be differential")
-        if x.type == "aichelburg_sexl_gyraton_null_tetrad":
-            # Branch cut [-inf , 0]
-            return -self.mu * np.log(2 * x[2] * x[3])
+        if not u.dif:
+            raise Exception("4-velocity argument u has to be differential")
+        defined = ["desitternull", "desitter_constant_heaviside_gyraton_null"]
+        if x.type not in defined:
+            raise Exception("Using undefined coordinates for Hotta-Tanaka solution refraction")
         else:
-            raise Exception("Error in inner conversion to Aichelburg Sexl Gyratonic coordinate system")
-
-    def _hz(self, x):
-        if x.dif:
-            raise Exception("Coordinate argument x cannot be differential")
-        if x.type == "aichelburg_sexl_gyraton_null_tetrad":
-            # Branch cut [-inf , 0]
-            return -self.mu * 1. / x[2]
+            _x = x
+            _u = u
+        # Checking in case more represenations are implemented
+        if _x.type in ["desitternull", "desitter_constant_heaviside_gyraton_null"]:
+            _nx = np.array([_x[0],
+                            _x[1] + self._h(_x, self.l),
+                            _x[2], _x[3]])
+            _dhz = self._hz(_x, self.l)
+            _nu = np.array([_u[0],
+                            _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + (
+                                        _dhz * np.conj(_dhz) - self.chi ** 2 / (4. * _x[2] * _x[3])) * _u[0],
+                            _u[2] + (np.conj(_dhz) - 1j * self.chi / (2. * _x[3])) * _u[0],
+                            np.conj(_u[2] + (np.conj(_dhz) - 1j * self.chi / (2. * _x[3])) * _u[0])])
         else:
-            raise Exception("Error in inner conversion to Aichelburg Sexl Gyratonic coordinate system")
+            raise Exception("Something went wrong while converting to internal coordinate representation")
 
-
-class FrolovFursaevGyratonLambda(RefractionSolution):
-    def __init__(self, mu, chi, l):
-        """
-
-        :param mu:
-        :param chi:
-        :param l:
-        """
+        if keepCoordinates and _x.type != x.type:
+            _x.x = _nx
+            _u.x = _nu
+            return x.coordinate_type.convert(_x), u.coordinate_type.convert(_u)
+        else:
+            return _x.coordinate_type(_nx), _x.coordinate_type(_nu, True)
