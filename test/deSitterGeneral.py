@@ -90,9 +90,11 @@ lmb = -1.0
 
 initpos = [DeSitterNullTetrad(np.array([0, theta, 0j, 0j])) for theta in np.linspace(-.2, .2, num=N)]
 
+surps = [] #surpress
+
 
 #u0 = [np.array([1, 1, 0, 0]) for phi in np.linspace(0, 2*np.pi * (N-1.) / N, num=N)]
-u0 = [np.array([0.01, 0, 0, 0]) for theta in np.linspace(-2, 2, num=N)]
+u0 = [np.array([0.1, 0, 0, 0]) for theta in np.linspace(-2, 2, num=N)]
 initvels = [DeSitterNullTetrad(x, dif=True) for x in u0] #Can be generalized to different initial 4-vels
 
 wave = LambdaGeneralSolution(lmb, H, H_z) #Generate spacetime with wave
@@ -113,28 +115,27 @@ plotter2.plotCutAndPasteHyperboloid(1., lmb, (-7, 7), opacity=0.2, color="rgb(18
 # For each init pos generate geodesic (splitted)
 
 for x0, u0, geonum in zip(initpos, initvels, range(0, len(initpos))):
-    a = wave.generate_geodesic(x0, u0, (-200, 250), max_step=0.01, christoffelParams=[lmb], rtol=1e-7, atol=1e-9)
+    a = wave.generate_geodesic(x0, u0, (-20, 25), max_step=0.1, christoffelParams=[lmb], rtol=1e-7, atol=1e-9)
     trajm, trajp = a[0]
     tm, tp = a[1]
     #trajp = ds.generate_geodesic(x0, u0, (-20, 20), max_step=0.4, christoffelParams=[lmb])
     c = genRGB(geonum, 2*N, add=10)
     color = "rgb(" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ")"
-    print(color)
     # TODO: Add name to trajectory
 
-    plotter.plotTrajectory3D(to5DdS(trajm, lmb, surpress=[2, 3]), color=color, xc=4, yc=1, zc=0,
+    plotter.plotTrajectory3D(to5DdS(trajm, lmb, surpress=surps), color=color, xc=4, yc=1, zc=0,
                              name="Geod " + str(geonum) + " (-)", t=tm)
-    plotter.plotTrajectory3D(to5DdS(trajp, lmb, surpress=[2, 3]), color=color, xc=4, yc=1, zc=0,
+    plotter.plotTrajectory3D(to5DdS(trajp, lmb, surpress=surps), color=color, xc=4, yc=1, zc=0,
                              name="Geod " + str(geonum) + " (+)", t=tp)
 
-    plotter2.plotTrajectory3D(to5DdSCut(trajm, lmb, 1., surpress=[2, 3]), color=color, xc=4, yc=1, zc=0,
+    plotter2.plotTrajectory3D(to5DdSCut(trajm, lmb, 1., surpress=surps), color=color, xc=4, yc=1, zc=0,
                              name="Geod " + str(geonum) + " (-)", t=tm)
-    plotter2.plotTrajectory3D(to5DdSCut(trajp, lmb, 1., surpress=[2, 3]), color=color, xc=4, yc=1, zc=0,
+    plotter2.plotTrajectory3D(to5DdSCut(trajp, lmb, 1., surpress=surps), color=color, xc=4, yc=1, zc=0,
                              name="Geod " + str(geonum) + " (+)", t=tp)
 
 
-plotter.export_html("GenAdSExp410.html", include_plotlyjs=True, include_mathjax=True)
-plotter.export_pdf("GenAdSExp410.pdf", eye=(2.5, 0.5, 0.2))
+plotter.export_html("GenAdSExp410_NOSUP.html", include_plotlyjs=True, include_mathjax=True)
+plotter.export_pdf("GenAdSExp410_NOSUP.pdf", eye=(2.5, 0.5, 0.2))
 
-plotter2.export_html("GenAdSExp410_CutAndPaste.html", include_plotlyjs=True, include_mathjax=True)
-plotter2.export_pdf("GenAdSExp410_CutAndPaste.pdf", eye=(2.5, 0.5, 0.2))
+plotter2.export_html("GenAdSExp410_CutAndPaste_NOSUP.html", include_plotlyjs=True, include_mathjax=True)
+plotter2.export_pdf("GenAdSExp410_CutAndPaste_NOSUP.pdf", eye=(2.5, 0.5, 0.2))

@@ -61,8 +61,8 @@ def genRGB(i, n, add = 0):
     return [gaussian((i + add) % n, mu, sigma) * 255., 0., (1.-gaussian((i + add) % n, mu, sigma)) * 255.]
 
 plot = [2, 3, 0]
-lab = ["x", "y", "t"]
-convertFunction = toGyraCart
+lab = ["x", "y", "U"]
+convertFunction = toGyraUVxy
 plotName = "ASRingGyraNull"
 
 plotter = PlotlyDynamicPlotter(title=r"$\text{Aichelburg Sexl solution, }\mu=" + str(mu) + "$",

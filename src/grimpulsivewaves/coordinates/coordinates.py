@@ -75,6 +75,7 @@ class GyratonicCartesian(CoordinatePoint):
     @staticmethod
     def christoffel(x, params):
         if(x[0] - x[1] <= 0):
+            raise NotImplementedError()
             return np.zeros((4, 4, 4))
         else:
             raise NotImplementedError()
@@ -181,10 +182,8 @@ class NullTetradConstantHeavisideGyraton(CoordinatePoint):
             return np.zeros((4, 4, 4), dtype=np.complex128)
         else:
             ch = np.zeros((4, 4, 4), dtype=np.complex128)
-            ch[2, 1, 2] = - 1j * (params[0]) / (2 * x[2] * x[2])
-            ch[2, 2, 1] = ch[2, 1, 2]
-            ch[3, 1, 3] = 1j * (params[0]) / (2 * x[3] * x[3])
-            ch[3, 3, 1] = ch[3, 1, 3]
+            ch[1, 2, 2] = - 1j * (params[0]) / (2 * x[2] * x[2])
+            ch[1, 3, 3] = 1j * (params[0]) / (2 * x[3] * x[3])
             return ch
 
     @staticmethod
@@ -308,34 +307,34 @@ class DeSitterNullTetrad(CoordinatePoint):
     @staticmethod
     def christoffel(x, params):
         cf = np.zeros((4, 4, 4), dtype=np.complex128)
-        cf[0, 0, 0] = - 2 * x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[2, 0, 0] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[3, 0, 0] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[1, 1, 1] = -2 * x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[2, 1, 1] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[3, 1, 1] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[0, 0, 2] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[0, 2, 0] = cf[0, 0, 2]
-        cf[3, 0, 2] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[3, 2, 0] = cf[3, 0, 2]
-        cf[1, 1, 2] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[1, 2, 1] = cf[1, 1, 2]
-        cf[3, 1, 2] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[3, 2, 1] = cf[3, 1, 2]
-        cf[0, 2, 2] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[1, 2, 2] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[2, 2, 2] = 2 * x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[0, 0, 3] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[0, 3, 0] = cf[0, 0, 3]
-        cf[2, 0, 3] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[2, 3, 0] = cf[2, 0, 3]
-        cf[1, 1, 3] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[1, 3, 1] = cf[1, 1, 3]
-        cf[2, 1, 3] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[2, 3, 1] = cf[2, 1, 3]
-        cf[0, 3, 3] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[1, 3, 3] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
-        cf[3, 3, 3] = 2 * x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])
+        cf[0, 0, 0] = - 2 * x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u u u
+        cf[0, 0, 2] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u u eta
+        cf[0, 2, 0] = cf[0, 0, 2] #u eta u
+        cf[0, 0, 3] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u u etabar
+        cf[0, 3, 0] = cf[0, 0, 3] #u etabar u
+        cf[0, 2, 3] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u eta etabar
+        cf[0, 3, 2] = cf[0, 2, 3] #u etabar eta
+        cf[1, 1, 1] = - 2 * x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #v v v
+        cf[1, 1, 2] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #v v eta
+        cf[1, 2, 1] = cf[1, 1, 2] #v eta v
+        cf[1, 1, 3] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #v v etabar
+        cf[1, 3, 1] = cf[1, 1, 3] #v etabar v
+        cf[1, 2, 3] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #v eta etabar
+        cf[1, 3, 2] = cf[1, 2, 3] #v etabar eta
+        cf[2, 0, 1] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #eta u v
+        cf[2, 1, 0] = cf[2, 0, 1] #eta v u
+        cf[2, 0, 2] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #eta u eta
+        cf[2, 2, 0] = cf[2, 0, 2] #eta eta u
+        cf[2, 1, 2] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #eta v eta
+        cf[2, 2, 1] = cf[2, 1, 2] #eta eta v
+        cf[2, 2, 2] = 2 * x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #eta eta eta
+        cf[3, 0, 1] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #etabar u v
+        cf[3, 1, 0] = cf[3, 0, 1] #etabar v u
+        cf[3, 0, 3] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #etabar u etabar
+        cf[3, 3, 0] = cf[3, 0, 3] #etabar etabar u
+        cf[3, 1, 3] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #etabar v etabar
+        cf[3, 3, 1] = cf[3, 1, 3] #etabar etabar v
+        cf[3, 3, 3] = 2 * x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #etabar etabar etabar
         return cf
 
 class DeSitterConstantHeavisideGyratonNullTetrad(CoordinatePoint):
@@ -351,72 +350,66 @@ class DeSitterConstantHeavisideGyratonNullTetrad(CoordinatePoint):
 
     @property
     def coordinate_type(self):
-        return DeSitterNullTetrad
+        return DeSitterConstantHeavisideGyratonNullTetrad
 
     @staticmethod
     def christoffel(x, params):
-        """
-
-        :param x: Position
-        :param params: [Lambda, Chi, isAfterRefraction]
-        :return:
-        """
         cf = np.zeros((4, 4, 4), dtype=np.complex128)
-        cf[0, 0, 0] = - 2 * x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u u u
-        cf[1, 1, 1] = -2 * x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #v v v
-        cf[2, 1, 1] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #eta v v
-        cf[3, 1, 1] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #etabar v v
-        cf[3, 0, 2] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #etabar u eta
-        cf[1, 1, 2] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #v v eta
-        cf[1, 2, 2] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #v eta eta
-        cf[2, 2, 2] = 2 * x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #eta eta eta
-        cf[2, 0, 3] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  #eta u etabar
-        cf[1, 1, 3] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  #v v etabar
-        cf[1, 3, 3] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #v etabar etabar
+        cf[0, 0, 0] = - 2 * x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # u u u
+        cf[0, 2, 3] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # u eta etabar
+        cf[0, 3, 2] = cf[0, 2, 3]  # u etabar eta
+        cf[1, 1, 1] = - 2 * x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # v v v
+        cf[1, 1, 2] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # v v eta
+        cf[1, 2, 1] = cf[1, 1, 2]  # v eta v
+        cf[1, 1, 3] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # v v etabar
+        cf[1, 3, 1] = cf[1, 1, 3]  # v etabar v
+        cf[2, 1, 2] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # eta v eta
+        cf[2, 2, 1] = cf[2, 1, 2]  # eta eta v
+        cf[2, 2, 2] = 2 * x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # eta eta eta
+        cf[3, 1, 3] = - x[0] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # etabar v etabar
+        cf[3, 3, 1] = cf[3, 1, 3]  # etabar etabar v
         cf[3, 3, 3] = 2 * x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # etabar etabar etabar
 
         if not params[2]:
-            cf[2, 0, 0] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #eta u u
-            cf[3, 0, 0] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #etabar u u
-            cf[0, 0, 2] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u u eta
-            cf[3, 1, 2] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #etabar v eta
-            cf[0, 2, 2] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u eta eta
-            cf[0, 0, 3] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u u etabar
-            cf[2, 1, 3] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #eta v etabar
-            cf[0, 3, 3] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]) #u etabar etabar
+            cf[0, 0, 2] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # u u eta
+            cf[0, 0, 3] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # u u etabar
+            cf[1, 2, 3] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # v eta etabar
+            cf[2, 0, 1] = x[2] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # eta u v
+            cf[2, 0, 2] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # eta u eta
+            cf[3, 0, 1] = x[3] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # etabar u v
+            cf[3, 0, 3] = - x[1] * params[0] / (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])  # etabar u etabar
         else:
-            cf[2, 0, 0] = params[0] * (2 * x[3] * x[2] + 1j * params[1] * x[0]) / (2 * x[2] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #eta u u
-            cf[3, 0, 0] = (params[0] * (2 * x[3] * x[2] - 1j * params[1] * x[0])) / (2 * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #etabar u u
-            cf[0, 1, 1] = x[0] * params[0] * params[1]**2 / (-2 * x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #u v v
-            cf[0, 0, 2] = params[0] * (2. * x[2] * x[3] + 1j * params[1] * x[0]) / (2 * x[2] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #u u eta
-            cf[0, 1, 2] = 0.25j * params[1] * params[0] * (- 2. * x[1] * x[2] * x[3] + x[0] * params[1]**2) / (-x[3] * x[2] * x[2] * (6. + (x[0] * x[1]- x[2] * x[3]) * params[0])) #u v eta
-            cf[0, 2, 1] = cf[0, 1, 2] #u eta v
-            cf[2, 1, 2] = -0.5j * params[1] / (x[2]**2) #eta v eta
-            cf[2, 2, 1] = cf[2, 1, 2] #eta eta v
-            cf[3, 1, 2] = 0.5 * params[0] * (2. * x[1] * x[2] * x[3] - x[0] * params[1]**2) / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #etabar v eta
-            cf[0, 2, 2] = 0.25 * params[0] * (4. * x[1] * x[2] * x[3] - params[1] * (2j * x[2] * x[3] + x[0] * params[1])) / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #u eta eta
-            cf[3, 2, 2] = 0.5j * x[0] * params[0] * params[1] / (x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #etabar eta eta
-            cf[0, 0, 3] = 0.5 * params[0] * (2. * x[2] * x[3] - 1j * x[0] * params[1]) / (x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #u u etabar
-            cf[0, 1, 3] = 0.25j * params[0] * params[1] * (2. * x[1] * x[2] * x[3] - x[0] * params[1]**2) / (-x[2] * x[3] * x[3] * (6. + (x[0]*x[1] - x[2]*x[3]) * params[0])) #u v etabar
-            cf[0, 3, 1] = cf[0, 1, 3] #u etabar v
-            cf[2, 1, 3] = 0.5 * params[0] * (2 * x[1] * x[2] * x[3] - x[0] * params[1]**2) / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #eta v etabar
-            cf[3, 1, 3] = 0.5j * params[1] / (x[3] * x[3]) #etabar v etabar
-            cf[3, 3, 1] = cf[3, 1, 3] #etabar etabar v
-            cf[0, 2, 3] = 0.25 * params[0] * params[1] * (2. * 1j * x[2] * x[3] + x[0] * params[1]) / (- x[3] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #u eta etabar
-            cf[0, 3, 2] = cf[0, 2, 3] #u etabar eta
-            cf[2, 2, 3] = 0.5j * x[0] * params[0] * params[1] / (x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #eta eta etabar
-            cf[2, 3, 2] = cf[2, 2, 3] #eta etabar eta
-            cf[0, 3, 3] = 0.25 * params[0] * (x[1] * x[2] * x[3] + params[1] * (2j * x[2] * x[3] - x[0] * params[1])) / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #u etabar etabar
-            cf[2, 3, 3] = 0.5j * x[0] * params[0] * params[1] / (-x[2] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #eta etabar etabar
+            cf[0, 0, 2] = 0.5 * params[0] * (2. * x[3] * x[2] + 1j * x[0] * params[1]) / (x[2] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) # u u eta
+            cf[0, 0, 3] = 0.5 * params[0] * (2. * x[2] * x[3] - 1j * x[0] * params[1]) / (x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]))  # u u etabar
+            cf[1, 1, 0] = 0.5 * x[1] * params[0] * params[1]**2 / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) # v v u
+            cf[1, 0, 1] = cf[1, 1, 0] # v u v
+            cf[1, 2, 0] = 0.25j * params[0] * params[1] * (2. * x[1] * x[2] * x[3] - x[0] * params[1]**2) / (x[2] * x[2] * x[3] * (6. + (x[0]*x[1] - x[2]*x[3]) * params[0])) # v eta u
+            cf[1, 0, 2] = cf[1, 2, 0] # v u eta
+            cf[1, 2, 2] = - 0.5j * params[1] / (x[2] * x[2]) # v eta eta
+            cf[1, 3, 0] = 0.25j * params[0] * params[1] * (2. * x[1] * x[2] * x[3] - x[0] * params[1]**2) / (- x[2] * x[3] * x[3] * (6. + (x[0]*x[1] - x[2]*x[3]) * params[0])) # v etabar u
+            cf[1, 0, 3] = cf[1, 3, 0] # v etabar u
+            cf[1, 2, 3] = 0.5 * params[0] * (2. * x[1] * x[2] * x[3] - x[0] * params[1]**2) / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) # v eta etabar
+            cf[1, 3, 3] = 0.5j * (params[1]) / (x[3] * x[3]) # v etabar etabar
+            cf[2, 0, 1] = cf[0, 0, 3] # eta u v
+            cf[2, 0, 2] = 0.25 * params[0] * (4. * x[1] * x[2] * x[3] - params[1] * (2j * x[2] * x[3] + x[0] * params[1])) / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #eta u eta
+            cf[2, 3, 0] = 0.25 * params[0] * params[1] * (2j * x[2] * x[3] + x[0] * params[1]) / (- x[3] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) #eta etabar u
+            cf[2, 0, 3] = cf[2, 3, 0] # eta u etabar
+            cf[2, 2, 3] = 0.5j * x[0] * params[0] * params[1] / (x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]))  # eta eta etabar
+            cf[2, 3, 2] = cf[2, 2, 3]  # eta etabar eta
+            cf[3, 0, 1] = cf[0, 0, 2] # etabar u v
+            cf[3, 2, 0] = 0.25 * params[0] * params[1] * (2j * x[2] * x[3] + x[0] * params[1]) / (x[2] * x[2] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) # etabar eta u
+            cf[3, 0, 2] = cf[3, 2, 0]
+            cf[3, 0, 3] = 0.25 * params[0] * (4. * x[1] * x[2] * x[3] + params[1] * (2j + x[2] * x[3] - x[0] * params[1])) / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) # etabar u etabar
+            cf[3, 2, 3] = 0.5j * x[0] * params[0] * params[1] / (- x[2] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) # etabar eta etabar
+            cf[3, 3, 2] = cf[3, 2, 3] # etabar etabar eta
 
-        cf[0, 2, 0] = cf[0, 0, 2] #u eta u
-        cf[3, 2, 0] = cf[3, 0, 2] #etabar eta u
-        cf[1, 2, 1] = cf[1, 1, 2] #v eta v
-        cf[3, 2, 1] = cf[3, 1, 2] #etabar eta v
-        cf[0, 3, 0] = cf[0, 0, 3] #u etabar u
-        cf[2, 3, 0] = cf[2, 0, 3] #eta etabar u
-        cf[1, 3, 1] = cf[1, 1, 3]  # v etabar v
-        cf[2, 3, 1] = cf[2, 1, 3]  # eta etabar v
+        cf[0, 2, 0] = cf[0, 0, 2]  # u eta u
+        cf[0, 3, 0] = cf[0, 0, 3]  # u etabar u
+        cf[1, 3, 2] = cf[1, 2, 3]  # v etabar eta
+        cf[2, 1, 0] = cf[2, 0, 1]  # eta v u
+        cf[2, 2, 0] = cf[2, 0, 2]  # eta eta u
+        cf[3, 1, 0] = cf[3, 0, 1]  # etabar v u
+        cf[3, 3, 0] = cf[3, 0, 3]  # etabar etabar u
 
         return cf
 #TODO: Add gyratonic coordinates (probably not for general J, will see)
