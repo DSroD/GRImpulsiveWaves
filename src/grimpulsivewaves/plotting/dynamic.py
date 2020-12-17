@@ -5,7 +5,7 @@ from plotly.io import write_image
 import random
 
 class PlotlyDynamicPlotter:
-    def __init__(self, labels=["x", "y", "z"], title="", aspectratio=None, xrange=None, yrange=None, zrange=None, showSpikes=True, spikeColor="#000000", bgcolor="#fff"):
+    def __init__(self, labels=["x", "y", "z"], title="", aspectratio=None, xrange=None, yrange=None, zrange=None, showSpikes=True, spikeColor="#000000", bgcolor="#fff", fontsize=10):
         self.labels = labels
 
         axis = dict(showline=True,
@@ -20,7 +20,9 @@ class PlotlyDynamicPlotter:
             zaxis_title=labels[2],
             xaxis=axis,
             yaxis=axis,
-            zaxis=axis)
+            zaxis=axis),
+            font=dict(
+                size=fontsize)
             )
 
         self.fig = go.Figure(layout=layout)
@@ -58,15 +60,15 @@ class PlotlyDynamicPlotter:
         if aspectratio:
             self.fig.update_layout(scene_aspectmode='manual', scene_aspectratio=dict(x=aspectratio[0], y=aspectratio[1], z=aspectratio[2]))
 
-    def plotTrajectory3D(self, trajectory, color="#{:06x}".format(random.randint(0, 0xFFFFFF)).upper(), xc=1, yc=2, zc=3, name="", t=None, showlegend=False):
+    def plotTrajectory3D(self, trajectory, color="#{:06x}".format(random.randint(0, 0xFFFFFF)).upper(), xc=1, yc=2, zc=3, name="", t=None, showlegend=False, opacity=1, linewidth=2, dash='solid'):
         hinfo = "%{fullData.name}<br><br>" + self.labels[0] + ": %{x}<br>" + self.labels[1] + ": %{y}<br>" + self.labels[2] + ": %{z}<br><br>" + r"tau: %{text}<extra></extra>"
 
         xs = np.array([x[xc] for x in trajectory]).flatten()
         ys = np.array([x[yc] for x in trajectory]).flatten()
         zs = np.array([x[zc] for x in trajectory]).flatten()
 
-        self.fig.add_scatter3d(x=xs, y=ys, z=zs, mode="lines", line=go.scatter3d.Line(color=color), name=name,
-                               hoverinfo='all')
+        self.fig.add_scatter3d(x=xs, y=ys, z=zs, mode="lines", line=go.scatter3d.Line(color=color, width=linewidth, dash=dash), name=name,
+                               hoverinfo='all', opacity=opacity)
         if t is not None:
             self.fig['data'][-1].update(text=t)
 
@@ -75,9 +77,7 @@ class PlotlyDynamicPlotter:
         self.fig['data'][-1].update(showlegend=showlegend)
 
 
-
-
-    def plotHyperboloid(self, l=1, vsize=(-2,2), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", drawImpulse=False, showlegend=False):
+    def plotHyperboloid(self, l=1, vsize=(-2,2), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", drawImpulse=False, showlegend=False, drawCoords=False):
         """
         Generate hyperboloid
         :param l: Cosmological constant
@@ -87,8 +87,8 @@ class PlotlyDynamicPlotter:
 
         eps = np.sign(l)
         a = np.sqrt(3/np.abs(l))
-        u = np.linspace(0, 2 * np.pi, 60)
-        v = np.linspace(vsize[0], vsize[1], 60) #TODO: resolution should not be hard-coded
+        u = np.linspace(0, 2 * np.pi, 90)
+        v = np.linspace(vsize[0], vsize[1], 90) #TODO: resolution should not be hard-coded
 
         u, v = np.meshgrid(u, v)
 
@@ -126,15 +126,65 @@ class PlotlyDynamicPlotter:
             _tempfig.add_scatter3d(x=x, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=4), name="U = infinity", hoverinfo='skip', showlegend=showlegend, opacity=0.4)
             _tempfig.add_scatter3d(x=x2, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=8), name="U = 0", hoverinfo='skip', showlegend=showlegend, opacity=0.8)
 
+        if drawCoords:
+            b = a + 0.005
+            bm = a - 0.005
+            u = np.linspace(0, 2 * np.pi, 12)
+            ud = np.linspace(0, 2 * np.pi, 120)
+            v = np.linspace(vsize[0], vsize[1], 12)
+            vd = np.linspace(vsize[0], vsize[1], 120)
+            #u const
+            for u0 in u:
+                if (eps > 0):
+                    x = b * np.cosh(vd / b) * np.cos(u0)
+                    xm = bm * np.cosh(vd / bm) * np.cos(u0)
+                    y = b * np.cosh(vd / b) * np.sin(u0)
+                    ym = bm * np.cosh(vd / bm) * np.sin(u0)
+                    z = b * np.sinh(vd / b)
+                    zm = bm * np.sinh(vd / bm)
+                else:
+                    x = b * np.cosh(vd / b) * np.cos(u0)
+                    xm = bm * np.cosh(vd / bm) * np.cos(u0)
+                    y = b * np.sinh(vd / b)
+                    ym = bm * np.sinh(vd / bm)
+                    z = b * np.cosh(vd / b) * np.sin(u0)
+                    zm = bm * np.cosh(vd / bm) * np.sin(u0)
+                _tempfig.add_scatter3d(x=x, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=2),
+                                       showlegend=False, opacity=1, name="", hoverinfo='skip')
+                _tempfig.add_scatter3d(x=xm, y=ym, z=zm, mode="lines", line=go.scatter3d.Line(color="black", width=2),
+                                       showlegend=False, opacity=1, name="", hoverinfo='skip')
+            #v const
+            for v0 in v:
+                if (eps > 0):
+                    x = b * np.cosh(v0 / b) * np.cos(ud)
+                    y = b * np.cosh(v0 / b) * np.sin(ud)
+                    z = b * np.sinh(v0 / b) * np.ones_like(ud)
+                    xm = bm * np.cosh(v0 / bm) * np.cos(ud)
+                    ym = bm * np.cosh(v0 / bm) * np.sin(ud)
+                    zm = bm * np.sinh(v0 / bm) * np.ones_like(ud)
+                else:
+                    x = b * np.cosh(v0 / b) * np.cos(ud)
+                    y = b * np.sinh(v0 / b) * np.ones_like(ud)
+                    z = b * np.cosh(v0 / b) * np.sin(ud)
+                    xm = bm * np.cosh(v0 / bm) * np.cos(ud)
+                    ym = bm * np.sinh(v0 / bm) * np.ones_like(ud)
+                    zm = bm * np.cosh(v0 / bm) * np.sin(ud)
+
+                _tempfig.add_scatter3d(x=x, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=2),
+                                       showlegend=False, opacity=1, name="", hoverinfo='skip')
+                _tempfig.add_scatter3d(x=xm, y=ym, z=zm, mode="lines", line=go.scatter3d.Line(color="black", width=2),
+                                       showlegend=False, opacity=1, name="", hoverinfo='skip')
+
         self.fig.add_traces(_tempfig.data)
+
 
     def plotCutAndPasteHyperboloid(self, H, l, vsize=(-2, 2), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", drawImpulse=False, showlegend=False):
         from scipy.spatial import Delaunay
 
         a = np.sqrt(3 / np.abs(l))
         eps = np.sign(l)
-        uo = np.linspace(0, 2 * np.pi, 700)
-        v = np.linspace(vsize[0], vsize[1], 500)  # TODO: resolution should not be hard-coded
+        uo = np.linspace(0, 2 * np.pi, 650)
+        v = np.linspace(vsize[0], vsize[1], 550)  # TODO: resolution should not be hard-coded
 
         uo, v = np.meshgrid(uo, v)
 

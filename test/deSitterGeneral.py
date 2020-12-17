@@ -100,22 +100,22 @@ initvels = [DeSitterNullTetrad(x, dif=True) for x in u0] #Can be generalized to 
 wave = LambdaGeneralSolution(lmb, H, H_z) #Generate spacetime with wave
 
 
-plotter = PlotlyDynamicPlotter(title=r"$H = \exp\left(-\frac{\Lambda}{3} (\eta + \bar{\eta}) \right)(1+\frac{1}{6} \Lambda \eta \bar{\eta}),~~ \Lambda=" + str(lmb) +"$",
+plotter = PlotlyDynamicPlotter(title="",
                                aspectratio=[1, 1, 1], labels=["Z4", "Z1", "Z0"],
-                               xrange=[-3, 3], yrange=[-3, 3], zrange=[-3, 3], showSpikes=True, bgcolor="#d1f1ff") #Init 3D plotter
+                               xrange=[-4.5, 4.5], yrange=[-4.5, 4.5], zrange=[-4.5, 4.5], showSpikes=True, bgcolor="#d1f1ff") #Init 3D plotter
 
-plotter.plotHyperboloid(lmb, (-7, 7), opacity=0.2, color="rgb(181,0,136)", drawImpulse=True, showlegend=True)
+plotter.plotHyperboloid(lmb, (-2.5, 2.5), opacity=0.2, color="rgb(181,0,136)", drawImpulse=True, showlegend=True)
 
 
-plotter2 = PlotlyDynamicPlotter(title=r"$H = \exp\left(-\frac{\Lambda}{3} (\eta + \bar{\eta}) \right)(1+\frac{1}{6} \Lambda \eta \bar{\eta}),~~ \Lambda=" + str(lmb) +"$",
+plotter2 = PlotlyDynamicPlotter(title="",
                                aspectratio=[1, 1, 1], labels=["Z4", "Z1", "Z0"],
-                               xrange=[-3, 3], yrange=[-3, 3], zrange=[-3, 3], showSpikes=True, bgcolor="#d1f1ff") #Init 3D plotter
+                               xrange=[-4.5, 4.5], yrange=[-4.5, 4.5], zrange=[-4.5, 4.8], showSpikes=True, bgcolor="#d1f1ff") #Init 3D plotter
 
-plotter2.plotCutAndPasteHyperboloid(1., lmb, (-7, 7), opacity=0.2, color="rgb(181,0,136)", drawImpulse=True, showlegend=True)
+plotter2.plotCutAndPasteHyperboloid(1., lmb, (-2.5, 2.5), opacity=0.2, color="rgb(181,0,136)", drawImpulse=True, showlegend=True)
 # For each init pos generate geodesic (splitted)
 
 for x0, u0, geonum in zip(initpos, initvels, range(0, len(initpos))):
-    a = wave.generate_geodesic(x0, u0, (-20, 25), max_step=0.1, christoffelParams=[lmb], rtol=1e-7, atol=1e-9)
+    a = wave.generate_geodesic(x0, u0, (-30, 30), max_step=0.1, christoffelParams=[lmb], rtol=1e-7, atol=1e-9)
     trajm, trajp = a[0]
     tm, tp = a[1]
     #trajp = ds.generate_geodesic(x0, u0, (-20, 20), max_step=0.4, christoffelParams=[lmb])

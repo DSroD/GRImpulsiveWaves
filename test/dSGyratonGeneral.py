@@ -78,21 +78,24 @@ def genRGB(i, n, add = 0):
 
 # NASTAVENÍ
 
-N = 30
+N = 25
 
 mu = -1.
-lmb = 1.
-ch = 0.5
+lmb = -1.
+ch = 1.
 chi = ch * np.pi
 
-plot = [2, 3, 0]
-lab = ["x", "y", "t"]
-convertFunction = toConformalCart
+plot = [4, 1, 0]
+lab = ["Z4", "Z1", "Z0"]
+convertFunction = lambda x: to5DdS(x, lmb)
+
+plotHyperboloids = False
+
 plotName = "dSConst"
 
-initpos = [np.array([0., 0., np.exp(1j * phi), np.exp(-1j * phi)], dtype=np.complex128) for phi in np.linspace(0, 2 * np.pi * (N-1.) / N, num=N)]
+initpos = [np.array([0., (phi - np.pi), 1, 1], dtype=np.complex128) for phi in np.linspace(0, 2 * np.pi * (N-1.) / N, num=N)]
 #initpos = [np.array([0., 0., phi, phi], dtype=np.complex128) for phi in np.linspace(-2, 2, num=N)]
-initvels = [0.2 * np.array([1., 1., 0., 0.], dtype=np.complex128) for phi in np.linspace(0, 2, num=N)]
+initvels = [0.1 * np.array([1., 0, 0., 0.], dtype=np.complex128) for phi in np.linspace(0, 2, num=N)]
 
 # WAVEFRONT FUNKCE
 
@@ -117,16 +120,20 @@ waveGEN0 = LambdaGeneralSolution(lmb, H1, H1Z)
 
 plotter0 = PlotlyDynamicPlotter(title=r"",
                                aspectratio=[1, 1, 1], labels=lab,
-                               xrange=[-3.5, 3.5], yrange=[-3.5, 3.5], zrange=[-3.5, 3.5], showSpikes=True, bgcolor="#d1f1ff")
+                               xrange=[-5, 5], yrange=[-5, 5], zrange=[-5, 5], showSpikes=True, bgcolor="#d1f1ff")
 
 plotterG = PlotlyDynamicPlotter(title=r"",
                                aspectratio=[1, 1, 1], labels=lab,
-                               xrange=[-3.5, 3.5], yrange=[-3.5, 3.5], zrange=[-3.5, 3.5], showSpikes=True, bgcolor="#d1f1ff")
+                               xrange=[-5, 5], yrange=[-5, 5], zrange=[-5, 5], showSpikes=True, bgcolor="#d1f1ff")
+
+if plotHyperboloids:
+    plotter0.plotHyperboloid(-3./2., (-5, 5), color="rgb(181,0,136)", drawImpulse=True, showlegend=True)
+    plotterG.plotHyperboloid(-3./2., (-5, 5), color="rgb(181,0,136)", drawImpulse=True, showlegend=True)
 
 for ipos, ivel, iposgyr, ivelgyr, geonum in zip(ipos0, ivel0, iposg, ivelg, range(N)):
-    nogyr = waveGEN0.generate_geodesic(ipos, ivel, (-12, 12), max_step=0.05, christoffelParams=[lmb])
+    nogyr = waveGEN0.generate_geodesic(ipos, ivel, (-9, 9), max_step=0.2, christoffelParams=[lmb])
 
-    gyr = waveGENG.generate_geodesic(iposgyr, ivelgyr, (-12, 12), max_step=0.05, christoffelParams=[lmb, chi, False],
+    gyr = waveGENG.generate_geodesic(iposgyr, ivelgyr, (-9, 9), max_step=0.2, christoffelParams=[lmb, chi, False],
                                      christoffelParamsPlus=[lmb, chi, True])
 
     c = genRGB(geonum, 2 * N, add=10)
@@ -139,10 +146,10 @@ for ipos, ivel, iposgyr, ivelgyr, geonum in zip(ipos0, ivel0, iposg, ivelg, rang
     tmg, tpg = gyr[1]
 
     plotter0.plotTrajectory3D(convertFunction(trajm0), color=color, xc=plot[0], yc=plot[1], zc=plot[2], name="Geod " + str(geonum) + " (-)", t=tm0)
-    plotter0.plotTrajectory3D(convertFunction(trajp0), color=color, xc=plot[0], yc=plot[1], zc=plot[2], name="Geod " + str(geonum) + " (-)", t=tp0)
+    plotter0.plotTrajectory3D(convertFunction(trajp0), color=color, xc=plot[0], yc=plot[1], zc=plot[2], name="Geod " + str(geonum) + " (+)", t=tp0)
 
     plotterG.plotTrajectory3D(convertFunction(trajmg), color=color, xc=plot[0], yc=plot[1], zc=plot[2], name="Geod " + str(geonum) + " (-)", t=tmg)
-    plotterG.plotTrajectory3D(convertFunction(trajpg), color=color, xc=plot[0], yc=plot[1], zc=plot[2], name="Geod " + str(geonum) + " (-)", t=tpg)
+    plotterG.plotTrajectory3D(convertFunction(trajpg), color=color, xc=plot[0], yc=plot[1], zc=plot[2], name="Geod " + str(geonum) + " (+)", t=tpg)
 
 plotter0.export_html(plotName + "NoGyra_" + lab[0] + lab[1] + lab[2] + ".html", include_plotlyjs=True, include_mathjax=True)
 plotter0.export_pdf(plotName + "NoGyra_" + lab[0] + lab[1] + lab[2] + ".pdf", eye=(2.5, 0.5, 0.2))

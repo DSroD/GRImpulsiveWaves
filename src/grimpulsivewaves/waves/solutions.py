@@ -163,6 +163,116 @@ class AichelburgSexlSolution(RefractionSolution):
             return -self.mu * 2. * x[3] / (x[2]**2 + x[3]**2)
 
 
+class GeneralRefractionSolution(RefractionSolution):
+    def __init__(self, _h, _hz, *args):
+        """
+        Aichelburg - Sexl solution is a solution to Einstein equations describing
+        massless blackhole moving at the speed of light. This solution effectively
+        represents planar wave on Minkowski background.
+
+        :param mu: Mu parameter of wave
+        """
+
+        self._h = _h
+        self._hz = _hz
+        self.args = args
+
+    def _refract(self, x, u, keepCoordinates=True):
+        """
+        Internal method for geodesic plotting
+        :param x: Position in internal coordinates
+        :param u: Velocity in internal coordinates
+        :param keepCoordinates: If false returns x and u in internal coordinates (for example when there is no inverse)
+        :return: Position and velocity after refraction
+        """
+        #Several coordinate representations of refraction equations are presented
+        if x.dif:
+            raise Exception("Coordinate argument x cannot be differential")
+        if not u.dif:
+            raise Exception("4-velocity argument u has to be differential")
+        defined = ["null_tetrad"]
+        if x.type not in defined:
+            _x = x.to_nulltetrad()
+            _u = u.to_nulltetrad()
+        else:
+            _x = x
+            _u = u
+        #Checking in case more represenations are implemented
+        if _x.type == "null_tetrad":
+            _nx = np.array([_x[0],
+                            _x[1] + self._h(_x, self.args),
+                            _x[2], _x[3]])
+            _dhz = self._hz(_x, self.args)
+            _nu = np.array([_u[0],
+                            _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + _dhz * np.conj(_dhz) * _u[0],
+                            _u[2] + np.conj(_dhz) * _u[0],
+                            _u[3] + _dhz * _u[0]])
+        else:
+            raise Exception("Something went wrong while converting to internal coordinate representation")
+
+
+        #TODO: Do this more pythonic
+        if keepCoordinates and _x.type != x.type:
+            _x.x = _nx
+            _u.x = _nu
+            return x.coordinate_type.convert(_x), u.coordinate_type.convert(_u)
+        else:
+            return _x.coordinate_type(_nx), _x.coordinate_type(_nu, True)
+
+
+class GeneralGyratonicRefractionSolution(RefractionSolution):
+    def __init__(self, h, hz, chi, *args):
+        """
+        Frolov-Fursaev Gyraton is an explicit family of waves with twisting source. This solution implements Aichelburg-Sexl
+        solution with additional off-diagonal terms in spacetime in front of the wavefront.
+        :param mu: Mu parameter of wave
+        :param chi: Twisting parameter of spacetime u > 0
+        """
+        if chi == 0:
+            raise Exception("For xi=0 please use AichelburgSexlSolution class")
+        self.chi = chi
+        self._h = h
+        self._hz = hz
+        self.args = args
+
+
+    def _refract(self, x, u, keepCoordinates=True):
+        """
+        Internal method for geodesic plotting
+        :param x: Position in internal coordinates
+        :param u: Velocity in internal coordinates
+        :param keepCoordinates: If false returns x and u in internal coordinates (for example when there is no inverse)
+        :return: Position and velocity after refraction
+        """
+
+        # Several coordinate representations of refraction equations are presented
+        if x.dif:
+            raise Exception("Coordinate argument x cannot be differential")
+        if not u.dif:
+            raise Exception("4-velocity argument u has to be differential")
+        defined = ["null_tetrad_constant_heaviside_gyraton"]
+        _x = x
+        _u = u
+        if x.type not in defined:
+            raise Exception("Wrong coordinates for this wave solution")
+        _nx = np.array([_x[0],
+                        _x[1] + self._h(_x, self.args),
+                        _x[2], _x[3]])
+        _dhz = self._hz(_x, self.args)
+        _nu = np.array([_u[0],
+                        _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + (_dhz * np.conj(_dhz) - self.chi**2 / (4. * _x[2] * _x[3])) * _u[0],
+                        _u[2] + (np.conj(_dhz) - 1j * self.chi / (2. * _x[3])) * _u[0],
+                        np.conj(_u[2] + (np.conj(_dhz) - 1j * self.chi / (2. * _x[3])) * _u[0])])
+
+        # TODO: Do this more pythonic
+        if keepCoordinates and _x.type != x.type:
+            _x.x = _nx
+            _u.x = _nu
+            return x.coordinate_type.convert(_x), u.coordinate_type.convert(_u)
+        else:
+            return _x.coordinate_type(_nx), _x.coordinate_type(_nu, True)
+
+
 class LambdaGeneralSolution(RefractionSolution):
     def __init__(self, l, h, h_z):
         """
@@ -284,7 +394,6 @@ class HottaTanakaSolution(RefractionSolution):
 
 
 class AichelburgSexlGyratonSolution(RefractionSolution):
-    #TODO: finish this class I guess
     def __init__(self, mu, chi):
         """
         Frolov-Fursaev Gyraton is an explicit family of waves with twisting source. This solution implements Aichelburg-Sexl
@@ -351,8 +460,9 @@ class AichelburgSexlGyratonSolution(RefractionSolution):
         else:
             return _x.coordinate_type(_nx), _x.coordinate_type(_nu, True)
 
+
 class GeneralLambdaGyratonSolution(RefractionSolution):
-    def __init__(self, l, chi, h, h_z):
+    def __init__(self, l, chi, h, h_z, *args):
         """
         Hotta - Tanaka solution is generalized Aichelburg-Sexl solution for non-zero cosmological
         constant.
@@ -365,6 +475,7 @@ class GeneralLambdaGyratonSolution(RefractionSolution):
         self.chi = chi
         self._h = h
         self._hz = h_z
+        self.args = args
 
     def _refract(self, x, u, keepCoordinates=True):
         """
@@ -388,9 +499,9 @@ class GeneralLambdaGyratonSolution(RefractionSolution):
         # Checking in case more represenations are implemented
         if _x.type in ["desitternull", "desitter_constant_heaviside_gyraton_null"]:
             _nx = np.array([_x[0],
-                            _x[1] + self._h(_x, self.l),
+                            _x[1] + self._h(_x, self.l, self.args),
                             _x[2], _x[3]])
-            _dhz = self._hz(_x, self.l)
+            _dhz = self._hz(_x, self.l, self.args)
             _nu = np.array([_u[0],
                             _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + (
                                         _dhz * np.conj(_dhz) - self.chi ** 2 / (4. * _x[2] * _x[3])) * _u[0],
