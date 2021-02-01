@@ -5,4 +5,4 @@ from .solutions import AichelburgSexlGyratonSolution
 from .solutions import LambdaGeneralSolution
 from .solutions import GeneralLambdaGyratonSolution
 from .solutions import GeneralGyratonicRefractionSolution
-from .solutions import GeneralRefractionSolution
+from .solutions import GeneralMinkowskiRefractionSolution

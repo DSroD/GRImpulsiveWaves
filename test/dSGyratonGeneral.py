@@ -85,25 +85,25 @@ lmb = -1.
 ch = 1.
 chi = ch * np.pi
 
-plot = [4, 1, 0]
-lab = ["Z4", "Z1", "Z0"]
-convertFunction = lambda x: to5DdS(x, lmb)
+plot = [2, 3, 0]
+lab = ["x", "y", "U"]
+convertFunction = lambda x: toConformalUVxy(x)
 
 plotHyperboloids = False
 
 plotName = "dSConst"
 
-initpos = [np.array([0., (phi - np.pi), 1, 1], dtype=np.complex128) for phi in np.linspace(0, 2 * np.pi * (N-1.) / N, num=N)]
+initpos = [np.array([0., 0., np.exp(1j * phi), np.exp(-1j * phi)], dtype=np.complex128) for phi in np.linspace(0, 2 * np.pi * (N-1.) / N, num=N)]
 #initpos = [np.array([0., 0., phi, phi], dtype=np.complex128) for phi in np.linspace(-2, 2, num=N)]
-initvels = [0.1 * np.array([1., 0, 0., 0.], dtype=np.complex128) for phi in np.linspace(0, 2, num=N)]
+initvels = [0.3 * np.array([1., 0, 0., 0.], dtype=np.complex128) for phi in np.linspace(0, 2, num=N)]
 
 # WAVEFRONT FUNKCE
 
-def H1(x, l):
+def H1(x, l, args):
     return mu/24. * (-2. * (6 + x[2] * x[3] * l) + (6 - x[2] * x[3] * l) * np.log(6/(x[2] * x[3] * l)))
     #return 1
 
-def H1Z(x, l):
+def H1Z(x, l, args):
     return - mu * 1./(24. * x[2]) * (6. + x[2] * x[3] * l + x[2] * x[3] * l * np.log(6./(x[2] * x[3] * l)))
     #return np.sqrt(np.abs(l)/3)
 

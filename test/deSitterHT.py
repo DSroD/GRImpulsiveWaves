@@ -1,6 +1,9 @@
 from grimpulsivewaves.waves import HottaTanakaSolution
 from grimpulsivewaves.coordinates import DeSitterNullTetrad
+
 from grimpulsivewaves.plotting import PlotlyDynamicPlotter
+from grimpulsivewaves.plotting import StaticGeodesicPlotter
+
 from grimpulsivewaves.waves import Solution
 
 import numpy as np
@@ -40,8 +43,7 @@ def to5DdS(x, lmb):
                                (1 - lmb/6. * (np.real(x[0]*x[1]) - np.real(x[2]*x[3])))], x))
 
 
-NU = 1 #Number of geodesics
-NV = 20 #ve směru V
+NU = 16 #Number of geodesics
 mu = 1.0
 lmb = 1.0
 
@@ -52,11 +54,11 @@ lmb = 1.0
 
 #gp, gt = np.meshgrid(np.linspace(-10, 10, num=N), np.linspace(-10, 10, num=N))
 
-initpos = [DeSitterNullTetrad(np.array([np.tan(phi), np.tan(theta), 0j, 0j])) for phi in np.linspace(-1, 1, num=NU) for theta in np.linspace(-1.6, 1.6, num=NV)]
+initpos = [DeSitterNullTetrad(np.array([0, 0, np.exp(1j * phi), np.exp(-1j * phi)])) for phi in np.linspace(0, 2* np.pi, num=NU)]
 
 
 #u0 = [np.array([1, 1, 0, 0]) for phi in np.linspace(0, 2*np.pi * (N-1.) / N, num=N)]
-u0 = [np.array([1, 0, 0, 0]) for phi in np.linspace(-2, 2, num=NU) for theta in np.linspace(-2, 2, num=NV)]
+u0 = [np.array([1, 0, 0, 0]) for phi in np.linspace(-2, 2, num=NU)]
 initvels = [DeSitterNullTetrad(x, dif=True) for x in u0] #Can be generalized to different initial 4-vels
 
 wave = HottaTanakaSolution(lmb, mu) #Generate spacetime with wave
@@ -71,16 +73,16 @@ plotter = PlotlyDynamicPlotter(title=r"$\text{Hotta Tanaka solution, }\mu=" + st
 # For each init pos generate geodesic (splitted)
 
 for x0, u0, geonum in zip(initpos, initvels, range(0, len(initpos))):
-    #a = wave.generate_geodesic(x0, u0, (-4, 2), max_step=0.1, christoffelParams=[lmb])
-    #trajm, trajp = a[0]
-    #tm, tp = a[1]
-    trajp, tp = ds.generate_geodesic(x0, u0, (-20, 20), max_step=0.4, christoffelParams=[lmb])
+    a = wave.generate_geodesic(x0, u0, (-4, 2), max_step=0.1, christoffelParams=[lmb])
+    trajm, trajp = a[0]
+    tm, tp = a[1]
+    #trajp, tp = ds.generate_geodesic(x0, u0, (-20, 20), max_step=0.4, christoffelParams=[lmb])
     color = "#{:06x}".format(random.randint(0, 0xFFFFFF)).upper()
     # TODO: Add name to trajectory
 
-    #plotter.plotTrajectory3D(to5DdS(trajm[0], lmb), color=color, xc=4, yc=1, zc=0, name="Geodesic (-)")
+    plotter.plotTrajectory3D(toConformalUVxy(trajm), color=color, xc=2, yc=3, zc=0, name="Geodesic (-)")
 
-    plotter.plotTrajectory3D(to5DdS(trajp[0], lmb), color=color, xc=4, yc=1, zc=0, name="Geodesic (+)")
+    plotter.plotTrajectory3D(toConformalUVxy(trajp), color=color, xc=2, yc=3, zc=0, name="Geodesic (+)")
 
 
 plotter.show()

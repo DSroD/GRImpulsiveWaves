@@ -234,6 +234,27 @@ class PlotlyDynamicPlotter:
         self.fig.add_traces(_tempfig.data)
 
 
+    def plotSurface(self, f, *args, xdomain=[-1, 1], ydomain=[-1, 1], xstep=0.05, ystep=0.05, color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", color2=None, complexNull=False, name="Surface", showlegend=False):
+        x = np.arange(xdomain[0], xdomain[1], xstep)
+        y = np.arange(ydomain[0], ydomain[1], ystep)
+        #X, Y = np.meshgrid(x, y)
+        z = np.zeros((x.size, y.size))
+        for i in range(x.size):
+            for j in range(y.size):
+                if complexNull:
+                    z[i, j] = f(x[i] + 1j * y[j], x[i] - 1j * y[j], args)
+                else:
+                    z[i, j] = f(x[i], y[j], args)
+                if z[i, j] == np.NaN:
+                    z[i, j] = 0
+        if color2 is None:
+            color2 = color
+        _tempfig = go.Figure(data=[
+            go.Surface(x=x, y=y, z=z, colorscale=[color, color2], name=name, surfacecolor=np.sqrt(np.abs(z)))])
+        _tempfig.update_traces(showscale=False, showlegend=showlegend)
+        self.fig.add_traces(_tempfig.data)
+
+
 
 
     def show(self):

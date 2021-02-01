@@ -163,7 +163,7 @@ class AichelburgSexlSolution(RefractionSolution):
             return -self.mu * 2. * x[3] / (x[2]**2 + x[3]**2)
 
 
-class GeneralRefractionSolution(RefractionSolution):
+class GeneralMinkowskiRefractionSolution(RefractionSolution):
     def __init__(self, _h, _hz, *args):
         """
         Aichelburg - Sexl solution is a solution to Einstein equations describing
@@ -274,7 +274,7 @@ class GeneralGyratonicRefractionSolution(RefractionSolution):
 
 
 class LambdaGeneralSolution(RefractionSolution):
-    def __init__(self, l, h, h_z):
+    def __init__(self, l, h, h_z, *args):
         """
         Hotta - Tanaka solution is generalized Aichelburg-Sexl solution for non-zero cosmological
         constant.
@@ -286,6 +286,7 @@ class LambdaGeneralSolution(RefractionSolution):
         self.l = l
         self.h = h
         self.h_z = h_z
+        self.args = args
 
     def _refract(self, x, u, keepCoordinates=True):
         """
@@ -309,9 +310,9 @@ class LambdaGeneralSolution(RefractionSolution):
         # Checking in case more represenations are implemented
         if _x.type == "desitternull":
             _nx = np.array([_x[0],
-                            _x[1] + self.h(_x, self.l),
+                            _x[1] + self.h(_x, self.l, self.args),
                             _x[2], _x[3]])
-            _dhz = self.h_z(_x, self.l)
+            _dhz = self.h_z(_x, self.l, self.args)
             _nu = np.array([_u[0],
                             _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + _dhz * np.conj(_dhz) * _u[0],
                             _u[2] + np.conj(_dhz) * _u[0],
@@ -363,12 +364,12 @@ class HottaTanakaSolution(RefractionSolution):
         if _x.type == "desitternull":
             _nx = np.array([_x[0],
                             _x[1] + self._h(_x),
-                            _x[2], _x[3]])
+                            _x[2], _x[3]], dtype=np.complex128)
             _dhz = self._hz(_x)
             _nu = np.array([_u[0],
                             _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + _dhz * np.conj(_dhz) * _u[0],
                             _u[2] + np.conj(_dhz) * _u[0],
-                            _u[3] + _dhz * _u[0]])
+                            _u[3] + _dhz * _u[0]], dtype=np.complex128)
         else:
             raise Exception("Something went wrong while converting to internal coordinate representation")
 

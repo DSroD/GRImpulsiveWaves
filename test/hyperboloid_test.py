@@ -43,8 +43,8 @@ plotter = PlotlyDynamicPlotter(aspectratio=[1, 1, 1], labels=["Z4", "Z1", "Z0"],
 plotter2 = PlotlyDynamicPlotter(aspectratio=[1, 1, 1], labels=["Z4", "Z1", "Z0"], xrange=[-3, 3], yrange=[-3, 3],
                                zrange=[-3, 3], showSpikes=True, bgcolor="#d1f1ff")
 
-plotter.plotHyperboloid(1, (-1.7, 1.7), opacity=1, color="rgb(247,161,255)", drawImpulse=False, showlegend=True, drawCoords=True)
-plotter2.plotHyperboloid(-1, (-1.7, 1.7), opacity=1, color="rgb(247,161,255)", drawImpulse=False, showlegend=True, drawCoords=True)
+plotter.plotHyperboloid(1, (-1.7, 1.7), opacity=0.8, color="rgb(247,161,255)", drawImpulse=False, showlegend=True, drawCoords=True)
+plotter2.plotHyperboloid(-1, (-1.7, 1.7), opacity=0.8, color="rgb(247,161,255)", drawImpulse=False, showlegend=True, drawCoords=True)
 
 
 """

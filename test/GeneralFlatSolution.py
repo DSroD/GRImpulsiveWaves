@@ -2,7 +2,7 @@ import numpy as np
 from grimpulsivewaves.coordinates import NullTetradConstantHeavisideGyraton
 from grimpulsivewaves.coordinates import NullTetrad
 from grimpulsivewaves.waves import GeneralGyratonicRefractionSolution
-from grimpulsivewaves.waves import GeneralRefractionSolution
+from grimpulsivewaves.waves import GeneralMinkowskiRefractionSolution
 from grimpulsivewaves.plotting import PlotlyDynamicPlotter
 
 
@@ -74,7 +74,7 @@ plotter2 = PlotlyDynamicPlotter(title="",
                                aspectratio=[1, 1, 1], labels=lab2,
                                xrange=[-10, 10], yrange=[-10, 10], zrange=[-4, 15], bgcolor="#ccffeb")
 
-wave1 = GeneralRefractionSolution(H, H_z, .2)
+wave1 = GeneralMinkowskiRefractionSolution(H, H_z, .2)
 wave2 = GeneralGyratonicRefractionSolution(H, H_z, chi[0], .2) #Generate spacetime with wave
 
 plotterg = []
