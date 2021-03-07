@@ -5,13 +5,14 @@ from plotly.io import write_image
 import random
 
 class PlotlyDynamicPlotter:
-    def __init__(self, labels=["x", "y", "z"], title="", aspectratio=None, xrange=None, yrange=None, zrange=None, showSpikes=True, spikeColor="#000000", bgcolor="#fff", fontsize=10):
+    def __init__(self, labels=["x", "y", "z"], title="", aspectratio=None, xrange=None, yrange=None, zrange=None, showSpikes=True, spikeColor="#000000", bgcolor="#fff", fontsize=10, ticks=True, tick_fontsize=12):
         self.labels = labels
 
         axis = dict(showline=True,
                     linewidth=4,
                     title=dict(font=dict(size=20)),
-                    showticklabels=False,
+                    showticklabels=ticks,
+                    tickfont=dict(size=tick_fontsize),
                     backgroundcolor=bgcolor)
 
         layout = go.Layout(scene= dict(
@@ -28,15 +29,15 @@ class PlotlyDynamicPlotter:
         self.fig = go.Figure(layout=layout)
         if xrange:
             self.fig.update_layout(scene=dict(
-                xaxis=dict(range=xrange)
+                xaxis=dict(range=xrange, showbackground=True)
             ))
         if yrange:
             self.fig.update_layout(scene=dict(
-                yaxis=dict(range=yrange)
+                yaxis=dict(range=yrange, showbackground=True)
             ))
         if zrange:
             self.fig.update_layout(scene=dict(
-                zaxis=dict(range=zrange)
+                zaxis=dict(range=zrange, showbackground=True)
             ))
         if showSpikes:
             self.fig.update_layout(scene=dict(

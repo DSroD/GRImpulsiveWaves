@@ -30,6 +30,7 @@ class RefractionSolution(Solution):
             raise ValueError("x0 and v0 has to be in same coordinate representation")
 
         #def metric(u):
+
         #    return -2 * u[0] * u[1] + 2 * u[2] * u[3]
 
         #def metricp(u, x):
@@ -56,10 +57,17 @@ class RefractionSolution(Solution):
             #    print("After: {}".format(metric(vp)))
             print("----------------------------------------------")
 
-
         solminus = integrate_geodesic(x0, -v0, (0, -min(range)), christoffelParams, max_step, rtol=rtol, atol=atol)
-
+        if verbose:
+            print("Integrating minus part of spacetime")
+            print("Status(-): {}\n{}".format(solminus.status, solminus.message))
+            print("Max t: {}".format(-np.max(solminus.t)))
         solplus = integrate_geodesic(xp, vp, (0, max(range)), christoffelParamsPlus, max_step, rtol=rtol,  atol=atol)
+        if verbose:
+            print("Integrating plus part of spacetime")
+            print("Status(+): {}\n{}".format(solminus.status, solminus.message))
+            print("Max t: {}".format(np.max(solplus.t)))
+            print("\n\n")
 
 
         #TODO: Return afinne parameter as list aswell (as propper time of each particle if massive)
@@ -385,13 +393,19 @@ class HottaTanakaSolution(RefractionSolution):
     #    return -self.mu * (1. - 1. / 6. * self.l * x[2] * x[3]) * np.log(1. / 6. * np.abs(self.l) * x[2] * x[3])\
     #           + 2. * self.mu * (1. + 1. / 6. * self.l * x[2] * x[3])
     
+    #def _h(self, x):
+    #    return self.mu * np.abs(self.l) * 2. / 3. * (- 2. - (-6. + self.l * x[2] * x[3]) * np.log(6./(self.l * x[2] * x[3])) / (6. + self.l * x[2] * x[3]))
+
     def _h(self, x):
-        return self.mu * np.abs(self.l) * 2. / 3. * (- 2. - (-6. + self.l * x[2] * x[3]) * np.log(6./(self.l * x[2] * x[3])) / (6. + self.l * x[2] * x[3]))
+        return 1./24. * self.mu * (2 * (-5 + x[2] * x[3] * self.l) + (6 + x[2] * x[3] * self.l) * np.log(6 * np.abs(x[2] * x[3] * self.l) ) )
+
+    #def _hz(self, x):
+    #    return self.mu * 2. * self.l * (-36. + x[2]**2 * x[3]**2 * self.l**2 - 12 * x[2] * x[3] * self.l *
+    #                                    np.log(6/(x[2] * x[3] * self.l)))/ (3. * x[2] *
+    #                                                                       (6. + x[2] * x[3] * self.l)**2)
 
     def _hz(self, x):
-        return self.mu * 2. * self.l * (-36. + x[2]**2 * x[3]**2 * self.l**2 - 12 * x[2] * x[3] * self.l *
-                                        np.log(6/(x[2] * x[3] * self.l)))/ (3. * x[2] *
-                                                                           (6. + x[2] * x[3] * self.l)**2)
+        return self.mu/(24 * x[2]) * (-6 + x[2] * x[3] * self.l * (1 + np.log( (6 * np.abs(self.l))/(self.l * self.l * np.abs(x[2] * x[3])) )))
 
 
 class AichelburgSexlGyratonSolution(RefractionSolution):

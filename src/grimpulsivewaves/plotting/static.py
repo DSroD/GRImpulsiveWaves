@@ -12,7 +12,7 @@ import numpy as np
 
 
 class StaticGeodesicPlotter:
-    def __init__(self, use3d=False, figsize=(8, 8), labels2d=["x", "y"], zlabel = "z", labelsize=16, aspect=1):
+    def __init__(self, use3d=False, figsize=(8, 8), labels2d=["x", "y"], zlabel = "z", labelsize=16, aspect=1, ticks=True, tick_labelsize=None):
         self.use3d = use3d
         self.fig, self.ax = plt.subplots(figsize=figsize)
         self.ax.set_aspect(aspect) #Just to make sure ratio is 1:1
@@ -22,13 +22,17 @@ class StaticGeodesicPlotter:
             self.ax.set_zlabel(zlabel)
         self.ax.set_xlabel(labels2d[0])
         self.ax.set_ylabel(labels2d[1])
-        self.ax.set_xticks([])
-        self.ax.set_yticks([])
+        if not ticks:
+            self.ax.set_xticks([])
+            self.ax.set_yticks([])
+        if tick_labelsize:
+            self.ax.tick_params(axis='both', which='major', labelsize=tick_labelsize)
         self.ax.xaxis.label.set_size(labelsize)
         self.ax.yaxis.label.set_size(labelsize)
 
         if use3d:
-            self.ax.set_zticks([])
+            if not ticks:
+                self.ax.set_zticks([])
             self.ax.zaxis.label.set_size(labelsize)
 
     def _set_scaling(self, x_range, y_range, z_range, lim):
