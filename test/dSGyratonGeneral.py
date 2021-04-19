@@ -109,13 +109,12 @@ def H1Z(x, l, args):
 
 # ACTUAL CODE HERE PROCEED WITH CAUTION (please)
 
-ipos0 = [DeSitterNullTetrad(x) for x in initpos]
 iposg = [DeSitterConstantHeavisideGyratonNullTetrad(x) for x in initpos]
 
 ivel0 = [DeSitterNullTetrad(x, True) for x in initvels]
 ivelg = [DeSitterConstantHeavisideGyratonNullTetrad(x, True) for x in initvels]
 
-waveGENG = GeneralLambdaGyratonSolution(lmb, mu, H1, H1Z)
+waveGENG = GeneralLambdaGyratonSolution(lmb, chi, H1, H1Z)
 waveGEN0 = LambdaGeneralSolution(lmb, H1, H1Z)
 
 plotter0 = PlotlyDynamicPlotter(title=r"",

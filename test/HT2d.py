@@ -6,11 +6,11 @@ from grimpulsivewaves.plotting import StaticGeodesicPlotter
 
 import numpy as np
 
-lmb = -1.5
+lmb = 1
 mu = 1
 
 folder = "HottaTanaka"
-fname = "HT4_y-1_"
+fname = "HT1_x1_null_hyperb"
 
 def toConformalCart(x):
     return list(map(lambda x: [1./np.sqrt(2.) * np.real(x[0] + x[1]),
@@ -33,7 +33,7 @@ def toUVfrom5dS(x, lmb):
 def to5DdS(x, lmb):
     eps = np.sign(lmb)
     return list(map(lambda x: [1./np.sqrt(2.) * np.real(x[0] + x[1]) / (1 - lmb/6. * (np.real(x[0]*x[1]) - np.real(x[2]*x[3]))),
-                               1./np.sqrt(2.) * np.real(x[0] - x[1]) / (1 - lmb/6. * (np.real(x[0]*x[1]) - np.real(x[2]*x[3]))),
+                               1./np.sqrt(2.) * np.real(x[1] - x[0]) / (1 - lmb/6. * (np.real(x[0]*x[1]) - np.real(x[2]*x[3]))),
                                1./np.sqrt(2.) * np.real(x[2] + x[3]) / (1 - lmb/6. * (np.real(x[0]*x[1]) - np.real(x[2]*x[3]))),
                                1./np.sqrt(2.) * np.imag(x[2] - x[3]) / (1 - lmb/6. * (np.real(x[0]*x[1]) - np.real(x[2]*x[3]))),
                                np.sqrt(3./(eps * lmb)) * (1 + lmb/6. * (np.real(x[0]*x[1]) - np.real(x[2]*x[3])))/
@@ -68,24 +68,25 @@ def genRGB(i, n, add = 0):
     sigma = mu / 2.
     return (gaussian((i + add) % n, mu, sigma), 0.1, (1.-gaussian((i + add) % n, mu, sigma)))
 
-N = 12
+N = 14
 
 initu = np.array([1, 0, 0, 0])
 
-initp = [DeSitterNullTetrad(np.array([0, 0, x+1j, x-1j])) for x in np.linspace(-1.2, 1.2, num=N) if np.abs(x) > 0.3]
-initv = [DeSitterNullTetrad(initu, dif=True) for x in np.linspace(-1.2, 1.2, num=N) if np.abs(x) > 0.3]
+initp = [DeSitterNullTetrad(np.array([0, x/np.pi - 1, 1.5+0j, 1.5+0j])) for x in np.linspace(0, 2 * np.pi, num=N) if np.abs(x) > 0.3]
+initv = [DeSitterNullTetrad(initu, dif=True) for x in np.linspace(0, 2 * np.pi, num=N) if np.abs(x) > 0.3]
 
 wave = HottaTanakaSolution(lmb, mu)
 
 statplotterUV = StaticGeodesicPlotter(labels2d=[r"$\mathcal{V}$", r"$\mathcal{U}$"], aspect="auto", ticks=True, tick_labelsize=14)
 statplotterxU = StaticGeodesicPlotter(labels2d=[r"$x$", r"$\mathcal{U}$"], aspect="auto", ticks=True, tick_labelsize=14)
-dynplotterxyU = PlotlyDynamicPlotter(labels=["U", "x", "y"], showSpikes=False, aspectratio=[1, 1, 0.5], bgcolor="#ccffeb", fontsize=30, ticks=True, tick_fontsize=15)
+dynplotterxyU = PlotlyDynamicPlotter(labels=["x", "y", "U"], showSpikes=False, aspectratio=[1, 1, 1], bgcolor="#ccffeb", fontsize=30, ticks=True, tick_fontsize=15)
 dynplotterZ2Z3Z4 = PlotlyDynamicPlotter(labels=["Z2", "Z3", "Z4"], showSpikes=False, aspectratio=[1, 1, 1], bgcolor="#ccffeb", fontsize=30, ticks=True, tick_fontsize=15)
-dynplotterZ0Z2Z4 = PlotlyDynamicPlotter(labels=["Z0", "Z2", "Z4"], showSpikes=False, aspectratio=[1, 1, 1], bgcolor="#ccffeb", fontsize=30, ticks=True, tick_fontsize=15)
+dynplotterZ0Z2Z4 = PlotlyDynamicPlotter(labels=["Z4", "Z1", "Z0"], showSpikes=False, aspectratio=[1, 1, 1], bgcolor="#ccffeb", fontsize=30, ticks=True, tick_fontsize=15)
 
 for x0, u0, geonum in zip(initp, initv, range(0, len(initp))):
-    fr = -quadratic(geonum, (len(initp)-1)/2., 0.5/len(initp), 0.6)
-    to = quadratic(geonum, (len(initp)-1)/2., 0.7/len(initp), 1)
+    #fr = -quadratic(geonum, (len(initp)-1)/2., 0.5/len(initp), 0.6)
+    #to = quadratic(geonum, (len(initp)-1)/2., 0.7/len(initp), 1)
+    fr, to = -1 - 1 / (geonum+1), 1
     print("Integrating geo {} form {} to {}".format(geonum, fr, to))
     print("Initial conditions are: x = {}   ;u = {}".format(x0.x, u0.x))
     a = wave.generate_geodesic(x0, u0, (fr, to), max_step=0.005, christoffelParams=[lmb], verbose=True)
@@ -101,12 +102,12 @@ for x0, u0, geonum in zip(initp, initv, range(0, len(initp))):
     statplotterxU.plot(toConformalUVxy(trajp), xc=2, yc=0, line="-", color=color)
 
     #Uxy plot
-    dynplotterxyU.plotTrajectory3D(toConformalUVxy(trajm), xc=0, yc=2, zc=3, t=tm, dash="longdashdot", linewidth=4, name=geonum, color='rgb' + str(color))
-    dynplotterxyU.plotTrajectory3D(toConformalUVxy(trajp), xc=0, yc=2, zc=3, t=tp, linewidth=4, name=geonum, color='rgb' + str(color))
+    dynplotterxyU.plotTrajectory3D(toConformalUVxy(trajm), xc=2, yc=3, zc=0, t=tm, dash="longdashdot", linewidth=4, name=geonum, color='rgb' + str(color))
+    dynplotterxyU.plotTrajectory3D(toConformalUVxy(trajp), xc=2, yc=3, zc=0, t=tp, linewidth=4, name=geonum, color='rgb' + str(color))
 
     #Z0Z2Z4
-    dynplotterZ0Z2Z4.plotTrajectory3D(to5DUVdS(trajm, lmb), xc=0, yc=2, zc=4, t=tm, dash="longdashdot", linewidth=4, name=geonum, color='rgb' + str(color))
-    dynplotterZ0Z2Z4.plotTrajectory3D(to5DUVdS(trajp, lmb), xc=0, yc=2, zc=4, t=tp, linewidth=4, name=geonum, color='rgb' + str(color))
+    dynplotterZ0Z2Z4.plotTrajectory3D(to5DdS(trajm, lmb), xc=4, yc=1, zc=0, t=tm, dash="longdashdot", linewidth=4, name=geonum, color='rgb' + str(color))
+    dynplotterZ0Z2Z4.plotTrajectory3D(to5DdS(trajp, lmb), xc=4, yc=1, zc=0, t=tp, linewidth=4, name=geonum, color='rgb' + str(color))
 
     #Z2Z3Z4
     dynplotterZ2Z3Z4.plotTrajectory3D(to5DUVdS(trajm, lmb), xc=2, yc=3, zc=4, t=tm, dash="longdashdot", linewidth=4, name=geonum, color='rgb' + str(color))
@@ -119,8 +120,9 @@ statplotterxU.save("{}/{}_xU_mu{}_lmb{}".format(folder, fname, mu, str(lmb).repl
 dynplotterxyU.export_html("{}/{}_x-y-U_mu{}_lmb{}.html".format(folder, fname, mu, lmb))
 dynplotterxyU.export_pdf("{}/{}_x-y-U_mu{}_lmb{}.pdf".format(folder, fname, mu, lmb), title=False)
 
-dynplotterZ0Z2Z4.export_html("{}/{}_Z0-Z2-Z4_mu{}_lmb{}.html".format(folder, fname, mu, lmb))
-dynplotterZ0Z2Z4.export_pdf("{}/{}_Z0-Z2-Z4_mu{}_lmb{}.pdf".format(folder, fname, mu, lmb), title=False)
+#dynplotterZ0Z2Z4.plotCutAndPasteHyperboloid(1, l=lmb, color="rgb(247,161,255)", drawOnlyMinus=True)
+dynplotterZ0Z2Z4.export_html("{}/{}_Z0-Z1-Z4_mu{}_lmb{}.html".format(folder, fname, mu, lmb))
+dynplotterZ0Z2Z4.export_pdf("{}/{}_Z0-Z1-Z4_mu{}_lmb{}.pdf".format(folder, fname, mu, lmb), title=False, eye=(-1.25, 1.25, 1.3))
 
 dynplotterZ2Z3Z4.export_html("{}/{}_Z2-Z3-Z4_mu{}_lmb{}.html".format(folder, fname, mu, lmb))
 dynplotterZ2Z3Z4.export_pdf("{}/{}_Z2-Z3-Z4_mu{}_lmb{}.pdf".format(folder, fname, mu, lmb), title=False)

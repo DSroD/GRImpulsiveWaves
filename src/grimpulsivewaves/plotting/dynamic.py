@@ -178,8 +178,7 @@ class PlotlyDynamicPlotter:
 
         self.fig.add_traces(_tempfig.data)
 
-
-    def plotCutAndPasteHyperboloid(self, H, l, vsize=(-2, 2), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", drawImpulse=False, showlegend=False):
+    def plotCutAndPasteHyperboloid(self, H, l, vsize=(-2, 2), opacity=0.5, plot_edges=False,  color="rgb(" + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + "," + str(random.randint(50,100)) + ")", drawImpulse=False, showlegend=False, drawOnlyMinus=False):
         from scipy.spatial import Delaunay
 
         a = np.sqrt(3 / np.abs(l))
@@ -193,28 +192,38 @@ class PlotlyDynamicPlotter:
         v = v.flatten()
         #TODO: OPRAVIT, ZKUST https://stackoverflow.com/questions/25060103/determine-sum-of-numpy-array-while-excluding-certain-values
         if (eps > 0):
-            x = a * np.cosh(v / a) * np.cos(u)
-            z = a * np.sinh(v / a)
-            y = a * np.cosh(v / a) * np.sin(u)
+            x = a * np.cosh(v / a) * np.cos(u) # Z1
+            z = a * np.sinh(v / a) # Z0
+            y = a * np.cosh(v / a) * np.sin(u) # Z4
 
         else:
             x = a * np.cosh(v/a) * np.cos(u)
             z = a * np.cosh(v / a) * np.sin(u)
             y = a * np.sinh(v / a)
 
-        xp = np.array([a if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+
         xm = np.array([a if c - b <= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
-        yp = np.array([b - 1. / np.sqrt(2) * H if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
         ym = np.array([b if c - b <= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
-        zp = np.array([c + 1. / np.sqrt(2) * H if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
         zm = np.array([c if c - b <= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
 
-        _tempfig = go.Figure(data=[
+        if not drawOnlyMinus:
+            xp = np.array([a if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+            yp = np.array([b - 1. / np.sqrt(2) * H if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+            zp = np.array([c + 1. / np.sqrt(2) * H if c - b >= 0 else np.nan for a, b, c in zip(x, y, z)]).reshape(uo.shape)
+
+
+
+        _tempfig = go.Figure(data=([
+            go.Surface(x=xm, y=ym, z=zm, colorscale=[color, color])
+        ] if drawOnlyMinus else [
             go.Surface(x=xp, y=yp, z=zp, colorscale=[color, color]),
             go.Surface(x=xm, y=ym, z=zm, colorscale=[color, color])
-        ])
-        _tempfig['data'][0].update(name="Hyperboloid +")
-        _tempfig['data'][1].update(name="Hyperboloid -")
+        ]))
+        if not drawOnlyMinus:
+            _tempfig['data'][0].update(name="Hyperboloid +")
+            _tempfig['data'][1].update(name="Hyperboloid -")
+        else:
+            _tempfig['data'][0].update(name="Hyperboloid -")
         _tempfig.update_traces(showscale=False, opacity=opacity, hoverinfo='skip', showlegend=showlegend)
         if drawImpulse:
             v = np.linspace(vsize[0], vsize[1], 10)
@@ -227,10 +236,11 @@ class PlotlyDynamicPlotter:
                                    name="U- = infinity", hoverinfo='skip', showlegend=showlegend , opacity=0.4)
             _tempfig.add_scatter3d(x=x2, y=y, z=z, mode="lines", line=go.scatter3d.Line(color="black", width=8),
                                    name="U- = 0", hoverinfo='skip', showlegend=showlegend, opacity=0.8)
-            _tempfig.add_scatter3d(x=x , y=y - 1. / np.sqrt(2) * H, z=z + 1. / np.sqrt(2) * H, mode="lines", line=go.scatter3d.Line(color="black", width=4),
-                                   name="U+ = infinity", hoverinfo='skip', showlegend=showlegend, opacity=0.4)
-            _tempfig.add_scatter3d(x=x2, y=y - 1. / np.sqrt(2) * H, z=z + 1. / np.sqrt(2) * H, mode="lines", line=go.scatter3d.Line(color="black", width=8),
-                                   name="U+ = 0", hoverinfo='skip', showlegend=showlegend, opacity=0.8)
+            if not drawOnlyMinus:
+                _tempfig.add_scatter3d(x=x , y=y - 1. / np.sqrt(2) * H, z=z + 1. / np.sqrt(2) * H, mode="lines", line=go.scatter3d.Line(color="black", width=4),
+                                        name="U+ = infinity", hoverinfo='skip', showlegend=showlegend, opacity=0.4)
+                _tempfig.add_scatter3d(x=x2, y=y - 1. / np.sqrt(2) * H, z=z + 1. / np.sqrt(2) * H, mode="lines", line=go.scatter3d.Line(color="black", width=8),
+                                        name="U+ = 0", hoverinfo='skip', showlegend=showlegend, opacity=0.8)
 
         self.fig.add_traces(_tempfig.data)
 

@@ -397,7 +397,7 @@ class HottaTanakaSolution(RefractionSolution):
     #    return self.mu * np.abs(self.l) * 2. / 3. * (- 2. - (-6. + self.l * x[2] * x[3]) * np.log(6./(self.l * x[2] * x[3])) / (6. + self.l * x[2] * x[3]))
 
     def _h(self, x):
-        return 1./24. * self.mu * (2 * (-5 + x[2] * x[3] * self.l) + (6 + x[2] * x[3] * self.l) * np.log(6 * np.abs(x[2] * x[3] * self.l) ) )
+        return 1./24. * self.mu * (2 * (-6 + x[2] * x[3] * self.l) + (6 + x[2] * x[3] * self.l) * np.log(6 * np.abs(x[2] * x[3] * self.l) ) )
 
     #def _hz(self, x):
     #    return self.mu * 2. * self.l * (-36. + x[2]**2 * x[3]**2 * self.l**2 - 12 * x[2] * x[3] * self.l *
@@ -518,8 +518,7 @@ class GeneralLambdaGyratonSolution(RefractionSolution):
                             _x[2], _x[3]])
             _dhz = self._hz(_x, self.l, self.args)
             _nu = np.array([_u[0],
-                            _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + (
-                                        _dhz * np.conj(_dhz) - self.chi ** 2 / (4. * _x[2] * _x[3])) * _u[0],
+                            _u[1] + _dhz * _u[2] + np.conj(_dhz) * _u[3] + (_dhz * np.conj(_dhz) - self.chi ** 2 / (4. * _x[2] * _x[3])) * _u[0],
                             _u[2] + (np.conj(_dhz) - 1j * self.chi / (2. * _x[3])) * _u[0],
                             np.conj(_u[2] + (np.conj(_dhz) - 1j * self.chi / (2. * _x[3])) * _u[0])])
         else:

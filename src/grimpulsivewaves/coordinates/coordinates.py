@@ -347,7 +347,7 @@ class DeSitterConstantHeavisideGyratonNullTetrad(CoordinatePoint):
     def __init__(self, x, dif=False):
         """
         Complex null coordinates coordinates with non-zero arbitrary lambda
-        Christoffel symbol parameters are [\Lambda]
+        Christoffel symbol parameters are [\Lambda, \chi]
         :param x: Numpy array of numbers
         :param dif: True if this is velocities, default false if coordinates
         """
@@ -403,6 +403,7 @@ class DeSitterConstantHeavisideGyratonNullTetrad(CoordinatePoint):
             cf[2, 2, 3] = 0.5j * x[0] * params[0] * params[1] / (x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0]))  # eta eta etabar
             cf[2, 3, 2] = cf[2, 2, 3]  # eta etabar eta
             cf[3, 0, 1] = cf[0, 0, 2] # etabar u v
+            cf[3, 1, 0] = cf[0, 0, 2]  # etabar v u
             cf[3, 2, 0] = 0.25 * params[0] * params[1] * (2j * x[2] * x[3] + x[0] * params[1]) / (x[2] * x[2] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) # etabar eta u
             cf[3, 0, 2] = cf[3, 2, 0]
             cf[3, 0, 3] = 0.25 * params[0] * (4. * x[1] * x[2] * x[3] + params[1] * (2j + x[2] * x[3] - x[0] * params[1])) / (- x[2] * x[3] * (6. + (x[0] * x[1] - x[2] * x[3]) * params[0])) # etabar u etabar

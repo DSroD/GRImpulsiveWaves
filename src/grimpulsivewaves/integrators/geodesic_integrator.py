@@ -13,5 +13,4 @@ def integrate_geodesic(x0, v0, range, christoffelParams, max_step, dim=4, rtol=1
         a[dim:] = z[:dim].reshape(dim)
         #TODO: Add corrections/checks to 4-velocity norm?
         return a
-
     return solve_ivp(geodeseq, range, z0, vectorized=True, max_step=max_step, rtol=rtol, atol=atol, method="RK45")
