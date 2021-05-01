@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 from grimpulsivewaves.waves import GeneralLambdaGyratonSolution
@@ -10,17 +12,19 @@ from grimpulsivewaves.plotting import PlotlyDynamicPlotter
 N = 20
 r = 1
 
-folder = "ads_gyraton"
-filename = f"timelike__u_05__v_1__ring__r_{r}"
-
-v0 = np.array([0.5, 1, 0, 0], dtype=np.complex128)
-
-mu = 2
-ch = 2
+mu = 1
+ch = 1
 lmb = 1
 chi = ch * np.pi
 
 intrange = (-1, 3)
+
+geotype = "null"
+
+folder = f"ads_gyraton/{geotype}/chi{ch}_mu{mu}/"
+filename = f"{geotype}__udot_1__vdot_1__ring__r_{r}"
+
+v0 = np.array([1, 0, 0, 0], dtype=np.complex128)
 
 def _h(x, lmb, mu):
     return 1. / 24. * mu[0] * (2 * (-6 + x[2] * x[3] * lmb) + (6 + x[2] * x[3] * lmb) * np.log(6 * np.abs(x[2] * x[3] * lmb)))
@@ -65,7 +69,7 @@ def g(u, v, x, lmb):
     return (u[2] * v[3] + u[3] * v[2] - u[0] * v[1] - u[1] * v[0]) / omega(x, lmb)**2
 
 initpos = [DeSitterConstantHeavisideGyratonNullTetrad(np.array([0, 0, r*np.exp(x*1j), r*np.exp(-x*1j)])) for x in np.linspace(0, 2 * np.pi * (N-1)/N, num=N)]
-initvels = [DeSitterConstantHeavisideGyratonNullTetrad(-v0 / g(v0, v0, x0, lmb) , True) for x0 in initpos]
+initvels = [DeSitterConstantHeavisideGyratonNullTetrad(v0 , True) for x0 in initpos]
 
 wave = GeneralLambdaGyratonSolution(lmb, chi, _h, _hz, mu)
 
@@ -115,19 +119,30 @@ for num, geo in enumerate(zip(initpos, initvels)):
                                      name="Geod " + str(num) + " (+)", t=tp0)
 
 
+try:
+    os.makedirs(f"{folder}/lmb_{lmb}/")
+except FileExistsError:
+    pass
 
+
+er = 2.4
+eth = 1.25/2 * np.pi
+eph = 0.36 * np.pi
+
+eyepos = (er * np.cos(eth) * np.sin(eph), er * np.sin(eth) * np.sin(eph), er * np.cos(eph) )
+#(2.5, 1.5, 0.6)
 
 dynamic_plotter.export_html(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_uxy.html", include_plotlyjs=True, include_mathjax=True)
-dynamic_plotter.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_uxy.pdf", eye=(2.5, 1.5, 0.6))
+dynamic_plotter.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_uxy.pdf", eye=eyepos)
 
 dynamic_plotter2.export_html(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_vxy.html", include_plotlyjs=True, include_mathjax=True)
-dynamic_plotter2.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_vxy.pdf", eye=(2.5, 1.5, 0.6))
+dynamic_plotter2.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_vxy.pdf", eye=eyepos)
 
 dynamic_plotter3.export_html(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xzt.html", include_plotlyjs=True, include_mathjax=True)
-dynamic_plotter3.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xzt.pdf", eye=(2.5, 1.5, 0.6))
+dynamic_plotter3.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xzt.pdf", eye=eyepos)
 
 dynamic_plotter4.export_html(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xyz.html", include_plotlyjs=True, include_mathjax=True)
-dynamic_plotter4.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xyz.pdf", eye=(2.5, 1.5, 0.6))
+dynamic_plotter4.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xyz.pdf", eye=eyepos)
 
 dynamic_plotter5.export_html(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xyt.html", include_plotlyjs=True, include_mathjax=True)
-dynamic_plotter5.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xyt.pdf", eye=(2.5, 1.5, 0.6))
+dynamic_plotter5.export_pdf(f"{folder}/lmb_{lmb}/{filename}__mu_{mu}__chi_{ch}pi_xyt.pdf", eye=eyepos)

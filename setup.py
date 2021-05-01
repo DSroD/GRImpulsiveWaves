@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='GRImpulsiveWaves',
-    version='0.3.0',
+    version='0.3.2',
     packages=['grimpulsivewaves', 'grimpulsivewaves.waves', 'grimpulsivewaves.plotting', 'grimpulsivewaves.coordinates',
               'grimpulsivewaves.integrators'],
     package_dir={'': 'src'},

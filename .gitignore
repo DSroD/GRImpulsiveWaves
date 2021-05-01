@@ -1,2 +1,6 @@
 /build/
 /dist/
+/src/GRImpulsiveWaves.egg-info/
+/test/flat_gyraton/
+/.vscode/
+test/ads_gyraton/
