@@ -1,5 +1,4 @@
 import numpy as np
-import os
 
 from grimpulsivewaves.waves import GeneralLambdaGyratonSolution
 
@@ -12,7 +11,6 @@ N = 20
 r = 1
 
 folder = "ads_gyraton"
-os.mkdirs(folder, exist_ok=True)
 filename = f"timelike__u_05__v_1__ring__r_{r}"
 
 v0 = np.array([0.5, 1, 0, 0], dtype=np.complex128)
